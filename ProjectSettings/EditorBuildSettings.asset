@@ -6,16 +6,16 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/ProjectRaidAuthority/Scenes/MirrorSample/MirrorOffline.unity
+    path: Assets/00_ProjectRaidAuthority/00_Scenes/00_MirrorSample/MirrorOffline.unity
     guid: a0000000000000000000000000000201
   - enabled: 1
-    path: Assets/ProjectRaidAuthority/Scenes/MirrorSample/MirrorGameRoom.unity
+    path: Assets/00_ProjectRaidAuthority/00_Scenes/00_MirrorSample/MirrorGameRoom.unity
     guid: a0000000000000000000000000000202
   - enabled: 1
-    path: Assets/ProjectRaidAuthority/Scenes/MirrorSample/MirrorGamePlay.unity
+    path: Assets/00_ProjectRaidAuthority/00_Scenes/00_MirrorSample/MirrorGamePlay.unity
     guid: a0000000000000000000000000000203
   - enabled: 1
-    path: Assets/ProjectRaidAuthority/Scenes/SampleScene.unity
+    path: Assets/00_ProjectRaidAuthority/00_Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
