@@ -1,0 +1,11 @@
+# Project-local Codex/OMX compatibility config.
+# Safe minimal settings only: enable native hooks and built-in TUI status line.
+
+[features]
+codex_hooks = true
+
+[tui]
+status_line = ["model-with-reasoning", "git-branch", "context-remaining"]
+
+[projects."/Users/gyyu/Development/Codex-Game-Studios"]
+trust_level = "trusted"

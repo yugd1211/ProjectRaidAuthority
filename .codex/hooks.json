@@ -1,0 +1,85 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ./.codex/hooks/omx-native-hook-wrapper.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ./.codex/hooks/omx-native-hook-wrapper.sh",
+            "statusMessage": "Running OMX Bash preflight"
+          },
+          {
+            "type": "command",
+            "command": "bash ./.codex/hooks/validate-commit-compatibility.sh",
+            "statusMessage": "Running CCGS commit validation"
+          },
+          {
+            "type": "command",
+            "command": "bash ./.codex/hooks/validate-push-compatibility.sh",
+            "statusMessage": "Running CCGS push validation"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ./.codex/hooks/omx-native-hook-wrapper.sh",
+            "statusMessage": "Running OMX tool review"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ./.codex/hooks/validate-assets-compatibility.sh",
+            "statusMessage": "Running CCGS asset validation"
+          },
+          {
+            "type": "command",
+            "command": "bash ./.codex/hooks/validate-skill-change-compatibility.sh",
+            "statusMessage": "Running CCGS skill validation advice"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ./.codex/hooks/omx-native-hook-wrapper.sh",
+            "statusMessage": "Applying OMX prompt routing"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ./.codex/hooks/omx-native-hook-wrapper.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
