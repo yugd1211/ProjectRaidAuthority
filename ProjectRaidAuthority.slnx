@@ -1,17 +1,10 @@
 ﻿<Solution>
-  <Project Path="Mirror.Transports.csproj" />
-  <Project Path="Edgegap.csproj" />
-  <Project Path="Unity.Mirror.CodeGen.csproj" />
-  <Project Path="Mirror.Components.csproj" />
-  <Project Path="Mirror.Editor.csproj" />
-  <Project Path="Mirror.Examples.csproj" />
-  <Project Path="kcp2k.csproj" />
-  <Project Path="Mirror.csproj" />
-  <Project Path="SimpleWebTransport.csproj" />
-  <Project Path="Mirror.Authenticators.csproj" />
-  <Project Path="EncryptionTransportEditor.csproj" />
-  <Project Path="Telepathy.csproj" />
+  <Project Path="FishNet.Runtime.csproj" />
+  <Project Path="FishNet.Codegen.Cecil.csproj" />
+  <Project Path="FishNet.Demos.csproj" />
+  <Project Path="SynapseSocket.csproj" />
+  <Project Path="Unity.FishNet.Codegen.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
-  <Project Path="Mirror.CompilerSymbols.csproj" />
+  <Project Path="GameKit.Dependencies.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
 </Solution>

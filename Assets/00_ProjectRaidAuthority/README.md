@@ -16,7 +16,7 @@
 | 경로 | 용도 |
 |---|---|
 | `00_Scenes/` | 프로젝트 씬 |
-| `00_Scenes/00_MirrorSample/` | Mirror 샘플 씬 |
+| `00_Scenes/00_FishNetSample/` | FishNet 샘플 씬 |
 | `01_Scripts/` | 프로젝트 C# 코드 |
 | `01_Scripts/00_Network/` | 네트워크/서버/멀티플레이 관련 코드 |
 | `01_Scripts/90_Editor/` | 에디터 전용 빌더/검증 코드 |
@@ -44,18 +44,18 @@
 - Unity Package Manager 의존성은 루트 `Packages/manifest.json`에서 관리합니다.
 - `Packages/packages-lock.json`은 패키지 버전 고정을 위해 유지합니다.
 - 외부 vendor/plugin 루트는 `Assets/00_ProjectRaidAuthority` 밖에 둡니다.
-  - 현재 Mirror는 `Assets/10_Mirror`에 있습니다.
+  - 현재 FishNet은 `Assets/10_FishNet`에 있습니다.
 - 수동 관리 외부 에셋은 `Assets/20_ThirdParty/<VendorOrAssetName>`에 둘 수 있습니다.
 - 외부 플러그인 원본은 가능한 직접 수정하지 않습니다.
 - 프로젝트 전용 어댑터, 래퍼, 샘플 씬, 게임별 통합 코드는 `Assets/00_ProjectRaidAuthority` 아래에 작성합니다.
 - `Editor`, `Resources`, `StreamingAssets`, `Plugins`, `Gizmos`, `Editor Default Resources`처럼 Unity가 예약한 폴더명은 Unity 규칙을 우선합니다.
 - 파일/폴더를 이동할 때는 `.meta` 파일도 함께 이동해 GUID 참조를 유지합니다.
 
-## 현재 Mirror 샘플 위치
+## 현재 FishNet 샘플 위치
 
-- Scenes: `Assets/00_ProjectRaidAuthority/00_Scenes/00_MirrorSample`
-- Prefabs: `Assets/00_ProjectRaidAuthority/02_Prefabs/00_Network/00_MirrorSample`
-- Runtime scripts: `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_MirrorSample`
+- Scenes: `Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetSample`
+- Prefabs: `Assets/00_ProjectRaidAuthority/02_Prefabs/00_Network/00_FishNetSample`
+- Runtime scripts: `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetSample`
 - Editor builder/tests: `Assets/00_ProjectRaidAuthority/01_Scripts/90_Editor`
 
-Mirror 플러그인 자체는 `Assets/10_Mirror`에 있으며, third-party/vendor 코드로 취급합니다.
+FishNet 플러그인 자체는 `Assets/10_FishNet`에 있으며, third-party/vendor 코드로 취급합니다.

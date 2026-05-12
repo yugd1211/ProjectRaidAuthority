@@ -8,8 +8,8 @@
 ## Overview
 
 Unity 6 networking options:
-- **Netcode for GameObjects** (RECOMMENDED): Official Unity multiplayer framework
-- **Mirror**: Community-driven (UNet successor)
+- **Netcode for GameObjects** (RECOMMENDED by Unity): Official Unity multiplayer framework
+- **FishNet**: Third-party networking framework currently selected by ProjectRaidAuthority
 - **Photon**: Third-party service (PUN2)
 - **Custom**: Low-level sockets
 
