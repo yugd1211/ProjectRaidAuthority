@@ -160,11 +160,11 @@ namespace ProjectRaidAuthority.EditorTools
 
             Canvas canvas = CreateCanvas();
             FishNetSampleOfflineMenu menu = CreateMenuBridge(canvas.transform, manager);
-            CreateText(canvas.transform, "Title", "FishNet Room Sample", new Vector2(0f, 150f), 34, TextAnchor.MiddleCenter);
-            CreateText(canvas.transform, "Subtitle", "Flow: Offline -> Game Room -> Game Play", new Vector2(0f, 105f), 18, TextAnchor.MiddleCenter);
-            CreateButton(canvas.transform, "HostButton", "Create Room (Host)", new Vector2(0f, 35f), menu.CreateRoom);
-            CreateButton(canvas.transform, "JoinButton", "Join Localhost (Client)", new Vector2(0f, -25f), menu.JoinLocalhost);
-            CreateText(canvas.transform, "Hint", "Host starts the FishNet room scene. In the room, press Ready to enter gameplay.", new Vector2(0f, -105f), 16, TextAnchor.MiddleCenter);
+            CreateText(canvas.transform, "Title", "FishNet 룸 샘플", new Vector2(0f, 150f), 34, TextAnchor.MiddleCenter);
+            CreateText(canvas.transform, "Subtitle", "흐름: 오프라인 -> 게임룸 -> 게임플레이", new Vector2(0f, 105f), 18, TextAnchor.MiddleCenter);
+            CreateButton(canvas.transform, "HostButton", "방 만들기 (호스트)", new Vector2(0f, 35f), menu.CreateRoom);
+            CreateButton(canvas.transform, "JoinButton", "로컬호스트 참가 (클라이언트)", new Vector2(0f, -25f), menu.JoinLocalhost);
+            CreateText(canvas.transform, "Hint", "호스트를 시작하면 FishNet 룸 씬으로 이동합니다. 룸에서 준비를 누르면 게임플레이로 진입합니다.", new Vector2(0f, -105f), 16, TextAnchor.MiddleCenter);
 
             CreateEventSystem();
             EditorSceneManager.SaveScene(scene, OfflineScenePath);
@@ -178,13 +178,13 @@ namespace ProjectRaidAuthority.EditorTools
             CreateCamera(new Vector3(0f, 2f, -10f), Quaternion.identity);
             CreateDirectionalLight();
             Canvas canvas = CreateCanvas();
-            CreateText(canvas.transform, "RoomTitle", "FishNet Game Room", new Vector2(0f, 95f), 32, TextAnchor.MiddleCenter);
-            CreateText(canvas.transform, "RoomHint", "Use the FishNet sample RoomPlayer GUI to toggle Ready during play mode.", new Vector2(0f, 35f), 18, TextAnchor.MiddleCenter);
-            CreateText(canvas.transform, "RoomInstruction", "When every spawned room player is ready, the sample manager loads gameplay.", new Vector2(0f, -15f), 16, TextAnchor.MiddleCenter);
+            CreateText(canvas.transform, "RoomTitle", "FishNet 게임룸", new Vector2(0f, 95f), 32, TextAnchor.MiddleCenter);
+            CreateText(canvas.transform, "RoomHint", "플레이 모드에서 FishNet 샘플 룸 플레이어 조작 화면에서 준비 상태를 전환하세요.", new Vector2(0f, 35f), 18, TextAnchor.MiddleCenter);
+            CreateText(canvas.transform, "RoomInstruction", "생성된 모든 룸 플레이어가 준비되면 샘플 매니저가 게임플레이 씬을 불러옵니다.", new Vector2(0f, -15f), 16, TextAnchor.MiddleCenter);
             CreateInstructionOverlay(
                 "Room Runtime Instructions",
-                "FishNet Game Room",
-                "Use the FishNet sample RoomPlayer GUI to toggle Ready during play mode. When every player is ready, gameplay loads.");
+                "FishNet 게임룸",
+                "플레이 모드에서 FishNet 샘플 룸 플레이어 조작 화면에서 준비 상태를 전환하세요. 모든 플레이어가 준비되면 게임플레이 씬을 불러옵니다.");
             CreateEventSystem();
 
             EditorSceneManager.SaveScene(scene, RoomScenePath);
@@ -203,11 +203,11 @@ namespace ProjectRaidAuthority.EditorTools
             CreateSpawnPoint("SpawnPoint_C", new Vector3(0f, 0.1f, 3f));
 
             Canvas canvas = CreateCanvas();
-            CreateText(canvas.transform, "GameplayHint", "FishNet Gameplay: local player moves with WASD/Arrow keys", new Vector2(0f, 185f), 18, TextAnchor.MiddleCenter);
+            CreateText(canvas.transform, "GameplayHint", "FishNet 게임플레이: 로컬 플레이어는 WASD/화살표 키로 이동합니다", new Vector2(0f, 185f), 18, TextAnchor.MiddleCenter);
             CreateInstructionOverlay(
                 "Gameplay Runtime Instructions",
-                "FishNet Game Play",
-                "Local player moves with WASD/Arrow keys. Transform sync is handled by FishNet NetworkTransform.");
+                "FishNet 게임플레이",
+                "로컬 플레이어는 WASD/화살표 키로 이동합니다. 위치 동기화는 FishNet 위치 동기화 컴포넌트가 처리합니다.");
             CreateEventSystem();
 
             EditorSceneManager.SaveScene(scene, GameplayScenePath);

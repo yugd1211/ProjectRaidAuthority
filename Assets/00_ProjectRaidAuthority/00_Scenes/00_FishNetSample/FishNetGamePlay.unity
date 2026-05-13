@@ -449,9 +449,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0000000000000000000000000000107, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectRaidAuthority.Networking.FishNetSampleRoomInstructions
-  title: FishNet Game Play
-  body: Local player moves with WASD/Arrow keys. Transform sync is handled by FishNet
-    NetworkTransform.
+  title: FishNet 게임플레이
+  body: 로컬 플레이어는 WASD/화살표 키로 이동합니다. 위치 동기화는 FishNet 위치 동기화 컴포넌트가 처리합니다.
 --- !u!4 &771562420
 Transform:
   m_ObjectHideFlags: 0
@@ -649,7 +648,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'FishNet Gameplay: local player moves with WASD/Arrow keys'
+  m_Text: 'FishNet 게임플레이: 로컬 플레이어는 WASD/화살표 키로 이동합니다'
 --- !u!222 &1076890355
 CanvasRenderer:
   m_ObjectHideFlags: 0

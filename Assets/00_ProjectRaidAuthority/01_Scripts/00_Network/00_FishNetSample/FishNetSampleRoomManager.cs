@@ -29,8 +29,8 @@ namespace ProjectRaidAuthority.Networking
         [TextArea(2, 5)]
         [SerializeField]
         private string sampleDescription =
-            "FishNet 연결/씬/스폰 API로 구성한 룸 흐름 샘플입니다. " +
-            "오프라인 씬에서 호스트/클라이언트를 시작하고, 룸 씬에서 Ready를 누르면 게임플레이 씬으로 전환합니다.";
+            "FishNet 연결/씬/스폰 기능으로 구성한 룸 흐름 샘플입니다. " +
+            "오프라인 씬에서 호스트/클라이언트를 시작하고, 룸 씬에서 준비를 누르면 게임플레이 씬으로 전환합니다.";
 
         private bool gameplayLoadRequested;
 

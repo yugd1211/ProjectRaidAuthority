@@ -286,7 +286,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: FishNet Room Sample
+  m_Text: FishNet 룸 샘플
 --- !u!222 &143299493
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -578,7 +578,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Host starts the FishNet room scene. In the room, press Ready to enter gameplay.
+  m_Text: 호스트를 시작하면 FishNet 룸 씬으로 이동합니다. 룸에서 준비를 누르면 게임플레이로 진입합니다.
 --- !u!222 &333302955
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -657,7 +657,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Join Localhost (Client)
+  m_Text: 로컬호스트 참가 (클라이언트)
 --- !u!222 &365788609
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -828,7 +828,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Flow: Offline -> Game Room -> Game Play'
+  m_Text: '흐름: 오프라인 -> 게임룸 -> 게임플레이'
 --- !u!222 &654732474
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1196,7 +1196,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Create Room (Host)
+  m_Text: 방 만들기 (호스트)
 --- !u!222 &1139213280
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1244,11 +1244,7 @@ MonoBehaviour:
   gameplayScene: Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetSample/FishNetGamePlay.unity
   clientAddress: localhost
   showRoomGui: 1
-  sampleDescription: "FishNet FishNetSampleRoomManager \uC0D8\uD50C\uC744 FishNet \uC5F0\uACB0/\uC52C/\uC2A4\uD3F0
-    API\uB85C \uC62E\uAE34 \uBC84\uC804\uC785\uB2C8\uB2E4. \uC624\uD504\uB77C\uC778
-    \uC52C\uC5D0\uC11C \uD638\uC2A4\uD2B8/\uD074\uB77C\uC774\uC5B8\uD2B8\uB97C \uC2DC\uC791\uD558\uACE0,
-    \uB8F8 \uC52C\uC5D0\uC11C Ready\uB97C \uB204\uB974\uBA74 \uAC8C\uC784\uD50C\uB808\uC774
-    \uC52C\uC73C\uB85C \uC804\uD658\uD569\uB2C8\uB2E4."
+  sampleDescription: "FishNet 연결/씬/스폰 기능으로 구성한 룸 흐름 샘플입니다. 오프라인 씬에서 호스트/클라이언트를 시작하고, 룸 씬에서 준비를 누르면 게임플레이 씬으로 전환합니다."
 --- !u!114 &1938325639
 MonoBehaviour:
   m_ObjectHideFlags: 0
