@@ -9,9 +9,9 @@ using UnityEngine;
 namespace ProjectRaidAuthority.Networking
 {
     /// <summary>
-    /// FishNet room-flow sample manager.
-    /// FishNet does not ship a direct room-manager equivalent, so this component keeps the
-    /// three-scene sample shape while using FishNet connection, scene, and spawn APIs.
+    /// FishNet 룸 흐름 샘플 매니저입니다.
+    /// FishNet에는 직접 대응되는 내장 룸 매니저가 없으므로,
+    /// 이 컴포넌트가 FishNet 연결, 씬, 스폰 API를 사용해 3개 씬 샘플 흐름을 유지합니다.
     /// </summary>
     public sealed class FishNetSampleRoomManager : MonoBehaviour
     {

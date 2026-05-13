@@ -8,8 +8,9 @@ using UnityEngine.InputSystem;
 namespace ProjectRaidAuthority.Networking
 {
     /// <summary>
-    /// FishNet room sample gameplay player. Local input is accepted only on the owning client,
-    /// and FishNet NetworkTransform synchronizes the transform to the server and observers.
+    /// FishNet 룸 샘플의 게임플레이 플레이어입니다.
+    /// 현재는 소유 클라이언트에서만 로컬 입력을 받고,
+    /// FishNet NetworkTransform이 transform을 서버와 관찰자에게 동기화합니다.
     /// </summary>
     public sealed class FishNetSampleGamePlayer : NetworkBehaviour
     {

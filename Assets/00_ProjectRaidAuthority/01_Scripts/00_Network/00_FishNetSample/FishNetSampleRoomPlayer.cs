@@ -5,8 +5,9 @@ using UnityEngine;
 namespace ProjectRaidAuthority.Networking
 {
     /// <summary>
-    /// FishNet lobby player used by the sample room scene. The owning client can toggle Ready,
-    /// and the server-side sample manager advances to gameplay when every room player is ready.
+    /// 샘플 룸 씬에서 사용하는 FishNet 로비 플레이어입니다.
+    /// 소유 클라이언트만 준비 상태를 바꿀 수 있으며,
+    /// 모든 룸 플레이어가 준비되면 서버 측 샘플 매니저가 게임플레이 씬으로 진행합니다.
     /// </summary>
     public sealed class FishNetSampleRoomPlayer : NetworkBehaviour
     {

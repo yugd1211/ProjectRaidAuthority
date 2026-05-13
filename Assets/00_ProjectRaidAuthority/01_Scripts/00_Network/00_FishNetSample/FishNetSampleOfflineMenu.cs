@@ -3,8 +3,8 @@ using UnityEngine;
 namespace ProjectRaidAuthority.Networking
 {
     /// <summary>
-    /// Offline scene UI bridge for the FishNet sample. Buttons call into the sample room manager
-    /// to start a host or localhost client.
+    /// FishNet 샘플 오프라인 씬의 UI 연결 컴포넌트입니다.
+    /// 버튼 입력을 샘플 룸 매니저로 전달해 호스트 또는 로컬호스트 클라이언트를 시작합니다.
     /// </summary>
     public sealed class FishNetSampleOfflineMenu : MonoBehaviour
     {

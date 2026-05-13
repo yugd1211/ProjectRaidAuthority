@@ -37,9 +37,6 @@ flowchart TD
 
 ```mermaid
 classDiagram
-    MonoBehaviour <|-- FishNetSampleOfflineMenu
-    MonoBehaviour <|-- FishNetSampleRoomManager
-    MonoBehaviour <|-- FishNetSampleRoomInstructions
     NetworkBehaviour <|-- FishNetSampleRoomPlayer
     NetworkBehaviour <|-- FishNetSampleGamePlayer
 
