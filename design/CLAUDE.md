@@ -1,38 +1,38 @@
-# Design Directory
+# design 디렉터리 지침
 
-When authoring or editing files in this directory, follow these standards.
+이 디렉터리의 설계 문서를 작성하거나 수정할 때는 아래 기준을 따른다.
 
-## GDD Files (`design/gdd/`)
+## 공통 언어 규칙
 
-Every GDD must include all **8 required sections** in this order:
-1. Overview — one-paragraph summary
-2. Player Fantasy — intended feeling and experience
-3. Detailed Rules — unambiguous mechanics
-4. Formulas — all math defined with variables
-5. Edge Cases — unusual situations handled
-6. Dependencies — other systems listed
-7. Tuning Knobs — configurable values identified
-8. Acceptance Criteria — testable success conditions
+- 설계 문서, 표, 체크리스트, 주석은 한국어로 작성한다.
+- Unity, FishNet, API명, 클래스명, 파일 경로, 수식 변수명은 원문을 유지할 수 있다.
 
-**File naming:** `[system-slug].md` (e.g. `movement-system.md`, `combat-system.md`)
+## GDD 파일 (`design/gdd/`)
 
-**Systems index:** `design/gdd/systems-index.md` — update when adding a new GDD.
+모든 GDD는 아래 8개 필수 항목을 같은 순서로 포함한다.
 
-**Design order:** Foundation → Core → Feature → Presentation → Polish
+1. 개요 — 한 문단 요약
+2. 플레이어 판타지 — 의도한 감정과 경험
+3. 상세 규칙 — 모호하지 않은 메커닉
+4. 수식 — 변수와 계산식
+5. 예외 상황 — 특수 상황 처리
+6. 의존성 — 연결 시스템
+7. 조정값 — 설정 가능한 값
+8. 수용 기준 — 검증 가능한 완료 조건
 
-**Validation:** Run `/design-review [path]` after authoring any GDD.
-Run `/review-all-gdds` after completing a set of related GDDs.
+파일명은 시스템 슬러그를 사용한다. 예: `combat-ai-core.md`.
 
-## Quick Specs (`design/quick-specs/`)
+`design/gdd/systems-index.md`는 새 GDD가 추가될 때 함께 갱신한다.
 
-Lightweight specs for tuning changes, minor mechanics, or balance adjustments.
-Use `/quick-design` to author.
+## 설계 순서
 
-## UX Specs (`design/ux/`)
+기반 → 핵심 → 기능 → 표현 → 폴리시 순서로 설계한다.
 
-- Per-screen specs: `design/ux/[screen-name].md`
-- HUD design: `design/ux/hud.md`
-- Interaction pattern library: `design/ux/interaction-patterns.md`
-- Accessibility requirements: `design/ux/accessibility-requirements.md`
+## UX 문서 (`design/ux/`)
 
-Use `/ux-design` to author. Validate with `/ux-review` before passing to `/team-ui`.
+- HUD 설계: `design/ux/hud.md`
+- 상호작용 패턴: `design/ux/interaction-patterns.md`
+- 결과 화면: `design/ux/raid-result-screen.md`
+- 접근성 요구사항: `design/accessibility-requirements.md`
+
+UX 문서는 구현 지시서가 아니라 구현 전 기준선이다. UI 스택은 실제 Unity 프로토타입 검증 후 확정한다.

@@ -1,0 +1,30 @@
+version: 1
+last_updated: "2026-05-13"
+current_phase: pre-production
+current_subphase: prototype-readiness
+source_of_truth:
+  asset_plan_root: "Assets/00_ProjectRaidAuthority/Docs/00_Plan"
+  ccgs_concept: "design/gdd/game-concept.md"
+  ccgs_systems_index: "design/gdd/systems-index.md"
+status_summary:
+  engine_configured: true
+  concept_migrated: true
+  systems_index_migrated: true
+  mvp_gdds_approved_for_architecture_planning: 6
+  adrs_migrated_to_accepted: 3
+  gdd_cross_review_present: true
+  architecture_baseline_present: true
+  control_manifest_present: true
+  accessibility_baseline_present: true
+  ux_specs_present: true
+  prototype_built: false
+  art_bible_present: true
+  stories_present: false
+  sprint_plan_present: false
+next_required_actions:
+  - build_fishnet_authority_smoke_prototype
+  - create_epics_after_prototype_evidence
+  - create_stories_after_epics
+notes:
+  - "Current phase advanced to pre-production because concept, art, systems, architecture, accessibility, and UX baseline artifacts now exist."
+  - "Do not create prototype completion artifact under prototypes/*/README.md until a real prototype exists."

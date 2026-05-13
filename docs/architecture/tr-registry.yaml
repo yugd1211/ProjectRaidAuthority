@@ -19,38 +19,71 @@
 #             /story-readiness (validate TR-ID exists and is active)
 #
 # ID FORMAT: TR-[system-slug]-[NNN]
-#   system-slug = short slug matching the GDD system name
-#   NNN = three-digit zero-padded sequence per system, starting at 001
-#
-# STATUS VALUES: active | deprecated | superseded-by: TR-[system]-NNN
 
 version: 1
-last_updated: ""
+last_updated: "2026-05-13"
 
-requirements: []
-
-# --- EXAMPLE ENTRIES (remove when first real entries are added) ---
-#
-# - id: TR-combat-001
-#   system: combat
-#   gdd: design/gdd/combat-system.md
-#   requirement: "Player takes damage from enemies based on attack power minus defence"
-#   created: 2026-03-10
-#   revised: ""
-#   status: active
-#
-# - id: TR-combat-002
-#   system: combat
-#   gdd: design/gdd/combat-system.md
-#   requirement: "Combo window timing is 0.4 seconds between hits"
-#   created: 2026-03-10
-#   revised: "2026-04-01"
-#   status: active
-#
-# - id: TR-combat-003
-#   system: combat
-#   gdd: design/gdd/combat-system.md
-#   requirement: "Old damage formula using raw stats"
-#   created: 2026-03-10
-#   revised: ""
-#   status: superseded-by: TR-combat-001
+requirements:
+  - id: TR-server-core-001
+    system: authoritative-server-core
+    gdd: design/gdd/authoritative-server-core.md
+    requirement: "Dedicated server owns final gameplay truth; clients send input and display/interpolate server snapshots/events."
+    created: 2026-05-13
+    revised: ""
+    status: active
+  - id: TR-server-core-002
+    system: authoritative-server-core
+    gdd: design/gdd/authoritative-server-core.md
+    requirement: "Server tick target starts at 20-30Hz and snapshot target starts at 10-20Hz until measured."
+    created: 2026-05-13
+    revised: ""
+    status: active
+  - id: TR-combat-ai-001
+    system: combat-ai-core
+    gdd: design/gdd/combat-ai-core.md
+    requirement: "Movement, firing, hit checks, damage, HP, status effects, and AI attacks are resolved by the server."
+    created: 2026-05-13
+    revised: ""
+    status: active
+  - id: TR-inventory-loot-001
+    system: inventory-looting-system
+    gdd: design/gdd/inventory-looting-system.md
+    requirement: "Each loot item has a unique server-issued ItemInstanceId and ownership changes only through server commit."
+    created: 2026-05-13
+    revised: ""
+    status: active
+  - id: TR-inventory-loot-002
+    system: inventory-looting-system
+    gdd: design/gdd/inventory-looting-system.md
+    requirement: "Loot requests use a requestId and item lock so duplicate or concurrent requests cannot duplicate items."
+    created: 2026-05-13
+    revised: ""
+    status: active
+  - id: TR-raid-flow-001
+    system: raid-flow-system
+    gdd: design/gdd/raid-flow-system.md
+    requirement: "Raid phases progress through lobby/allocation/loading/in-raid/extracting/result-commit/end under server authority."
+    created: 2026-05-13
+    revised: ""
+    status: active
+  - id: TR-raid-flow-002
+    system: raid-flow-system
+    gdd: design/gdd/raid-flow-system.md
+    requirement: "Only successful extraction persists raid loot to profile/stash; failure/death produces a different result."
+    created: 2026-05-13
+    revised: ""
+    status: active
+  - id: TR-run-build-001
+    system: roguelike-run-build-system
+    gdd: design/gdd/roguelike-run-build-system.md
+    requirement: "Trait offers, trait choices, synergies, curses, and run modifiers are generated and confirmed by the server."
+    created: 2026-05-13
+    revised: ""
+    status: active
+  - id: TR-ops-retention-001
+    system: retention-operations-system
+    gdd: design/gdd/retention-operations-system.md
+    requirement: "MVP operations evidence includes Docker/server execution, append-only raid events, and QA scenarios for duplication/extraction/server-failure risks."
+    created: 2026-05-13
+    revised: ""
+    status: active

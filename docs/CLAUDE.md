@@ -1,33 +1,44 @@
-# Docs Directory
+# docs 디렉터리 지침
 
-When authoring or editing files in this directory, follow these standards.
+이 디렉터리의 문서를 작성하거나 수정할 때는 아래 기준을 따른다.
 
-## Architecture Decision Records (`docs/architecture/`)
+## 공통 언어 규칙
 
-Use the ADR template: `.claude/docs/templates/architecture-decision-record.md`
+- 문서 본문과 주석은 한국어로 작성한다.
+- Unity, FishNet, API명, 파일 경로, 클래스명, 명령어는 원문을 유지할 수 있다.
+- 외부 원문을 인용해야 할 때는 짧게 인용하고, 설명은 한국어로 작성한다.
 
-**Required sections:** Title, Status, Context, Decision, Consequences,
-ADR Dependencies, Engine Compatibility, GDD Requirements Addressed
+## 아키텍처 결정 기록 (`docs/architecture/`)
 
-**Status lifecycle:** `Proposed` → `Accepted` → `Superseded`
-- Never skip `Accepted` — stories referencing a `Proposed` ADR are auto-blocked
-- Use `/architecture-decision` to create ADRs through the guided flow
+ADR은 다음 필수 항목을 포함해야 한다.
 
-**TR Registry:** `docs/architecture/tr-registry.yaml`
-- Stable requirement IDs (e.g. `TR-MOV-001`) that link GDD requirements to stories
-- Never renumber existing IDs — only append new ones
-- Updated by `/architecture-review` Phase 8
+- 제목
+- 상태
+- 배경
+- 결정
+- 결과와 영향
+- ADR 의존성
+- 엔진 호환성
+- 연결된 GDD 요구사항
 
-**Control Manifest:** `docs/architecture/control-manifest.md`
-- Flat programmer rules sheet: Required / Forbidden / Guardrails per layer
-- Date-stamped `Manifest Version:` in header
-- Stories embed this version; `/story-done` checks for staleness
+상태 흐름은 `제안` → `승인` → `대체`다. 스토리가 참조할 결정은 반드시 `승인` 상태여야 한다.
 
-**Validation:** Run `/architecture-review` after completing a set of ADRs.
+## 기술 요구사항 레지스트리
 
-## Engine Reference (`docs/engine-reference/`)
+`docs/architecture/tr-registry.yaml`은 GDD 요구사항과 구현 스토리를 연결하는 안정적인 요구사항 ID를 보관한다.
 
-Version-pinned engine API snapshots. **Always check here before using any
-engine API** — the LLM's training data predates the pinned engine version.
+- 기존 ID는 재번호화하지 않는다.
+- 새 요구사항은 뒤에 추가한다.
+- 구현 전후 추적성이 깨지지 않아야 한다.
 
-Current engine: see `docs/engine-reference/godot/VERSION.md`
+## 통제 매니페스트
+
+`docs/architecture/control-manifest.md`는 프로그래머가 바로 확인할 수 있는 필수/금지/가드레일 규칙표다.
+
+- 머리말에 `매니페스트 버전:`을 날짜와 함께 기록한다.
+- 스토리는 이 버전을 기준으로 작성한다.
+- 서버 권한, 전리품 거래, 추출 결과 저장 규칙은 반드시 포함한다.
+
+## 엔진 참조
+
+`docs/engine-reference/`는 현재 프로젝트가 기준으로 삼는 엔진/API 메모다. 구현 전에 `.claude/docs/technical-preferences.md`와 `docs/engine-reference/unity/VERSION.md`를 먼저 확인한다.

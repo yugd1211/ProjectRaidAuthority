@@ -1,90 +1,81 @@
-# Codex/OMX Compatibility Overlay for Claude Code Game Studios
+# Codex/OMX 호환 운영 지침 — ProjectRaidAuthority
 
-This repository's original operating system is Claude-native.
-`CLAUDE.md`, `.claude/`, and the scoped `*/CLAUDE.md` files remain the source of truth for the game-studio workflow, agent roster, hooks, rules, and slash-command behaviors.
+이 저장소는 Claude Code Game Studios 템플릿을 원본으로 사용하고, Codex/OMX가 같은 흐름을 실행할 수 있도록 얇은 호환 계층을 더한 프로젝트다.
 
-This `AGENTS.md` adds a **Codex/OMX compatibility layer** so Codex can interpret and port those behaviors without rewriting the original Claude assets.
+## 최우선 언어 규칙
 
-## Primary goals
+- 앞으로 사용자와의 모든 대화는 한국어로 작성한다.
+- 새로 작성하거나 수정하는 Markdown 문서, 문서 주석, 설계 메모, 운영 기록은 한국어로 작성한다.
+- Unity, FishNet, URP, API 이름, 파일 경로, 클래스명, 명령어, 로그 원문처럼 고유명사나 코드 식별자는 원문을 유지할 수 있다.
+- 영어 원문을 보존해야 하는 외부 인용, 패키지명, 프로토콜명은 번역하지 말고 설명만 한국어로 붙인다.
 
-1. Preserve the upstream Claude template as-is whenever possible.
-2. Add Codex/OMX-native surfaces under `AGENTS.md`, `.codex/`, and additive docs.
-3. Port Claude behaviors one capability at a time and validate practical parity.
-4. Keep future upstream sync work tractable by minimizing duplicate logic.
+## 원본 보존 규칙
 
-## Source-of-truth rules
+- `CLAUDE.md`, `.claude/**`, 범위별 `*/CLAUDE.md`는 Claude-native 워크플로의 원천 자료다.
+- 가능한 한 원본을 덮어쓰기보다 참조와 적응을 우선한다.
+- 사용자가 명시적으로 요청하지 않은 한 Claude 원본 파일을 삭제하거나 조용히 교체하지 않는다.
+- OMX 실행 상태는 `.omx/` 안에만 둔다. 제품 문서나 게임 콘텐츠로 취급하지 않는다.
 
-- Treat `CLAUDE.md` and `.claude/**` as authoritative for existing behavior.
-- Prefer **reference + adaptation** over copy-paste rewrites.
-- Do not delete or silently replace Claude-native files unless explicitly asked.
-- Keep OMX runtime/session state inside `.omx/` only; it is local workflow state, not product content.
+## Codex/OMX 포팅 표면
 
-## Porting surfaces
+Claude-native 동작을 Codex/OMX로 옮길 때 우선순위는 다음과 같다.
 
-When translating a Claude-native behavior into Codex/OMX, prefer this mapping order:
+1. `AGENTS.md` — 저장소 전체 오케스트레이션과 라우팅 지침
+2. `.codex/skills/` — 슬래시 명령/워크플로 대응
+3. `.codex/agents/` — 에이전트 역할 대응
+4. Codex/OMX hook/config — 자동화와 검증
+5. `docs/codex-omx-port-matrix.md` — 포팅 현황, 차이, 남은 작업 기록
 
-1. `AGENTS.md` for repo-wide orchestration and routing guidance
-2. `.codex/skills/` for slash-command/workflow equivalents
-3. `.codex/agents/` for agent-role equivalents
-4. Codex/OMX hook/config surfaces for automation and validation behavior
-5. `docs/codex-omx-port-matrix.md` for parity tracking, gaps, and status
+## 편집 전 필수 확인
 
-## Required reading before edits
+아래 영역을 편집할 때는 해당 범위의 Claude 지침을 먼저 읽는다.
 
-Before editing files in these areas, read the scoped Claude instructions first:
+- `docs/**` → `docs/CLAUDE.md`
+- `design/**` → `design/CLAUDE.md`
+- `src/**` → `src/CLAUDE.md`
+- `CCGS Skill Testing Framework/**` → `CCGS Skill Testing Framework/CLAUDE.md`
 
-- `docs/**` -> `docs/CLAUDE.md`
-- `design/**` -> `design/CLAUDE.md`
-- `src/**` -> `src/CLAUDE.md`
-- `CCGS Skill Testing Framework/**` -> `CCGS Skill Testing Framework/CLAUDE.md`
+여러 영역을 동시에 건드리면 모든 관련 지침을 만족해야 한다.
 
-If a task touches multiple scoped areas, satisfy all applicable scoped `CLAUDE.md` files.
+## 실행 방식
 
-## Codex/OMX execution guidance
+- 사용자가 “현재 무엇을 해야 하나?”라고 묻는 경우, `.codex/skills/ccgs-help/SKILL.md`를 우선 사용한다.
+- brownfield/포팅 작업은 `docs/codex-omx-port-matrix.md`에 상태와 차이를 기록한다.
+- 완성 판정은 UX가 완전히 같다는 뜻이 아니라 실무 결과가 동등한지로 판단한다.
+- 진행 보고는 결과 우선으로 짧게 작성한다: 목표 결과, 제약, 검증 증거, 멈춘 이유.
 
-- If a user asks for the current game-studio workflow, inspect `.claude/docs/workflow-catalog.yaml`, `.claude/docs/skills-reference.md`, and the relevant skill files.
-- If a user asks "what should I do next?", prefer the Codex-compatible help skill in `.codex/skills/ccgs-help/SKILL.md` once available.
-- For brownfield/parity work, update `docs/codex-omx-port-matrix.md` as capabilities are analyzed or ported.
-- Validate parity by practical effect, not exact UX duplication. Equivalent outcome is acceptable when Codex/OMX uses a different native interaction surface.
+## Unity MCP 운영 안전선
 
-## Unity MCP operational guardrail
+- `.omx/unity-mcp/umcp`, `broker.py`, `relay_win.exe --mcp`는 장기 연결 승인과 묶여 있으므로 평소에는 중지/재시작하지 않는다.
+- Unity MCP 호출이 실패하면 먼저 `.omx/unity-mcp/umcp status`, `.omx/unity-mcp/umcp logs`로 상태를 확인한다.
+- Direct MCP 재시작은 Unity가 연결을 새로 분류해 권한/용량 문제가 생길 수 있으므로 사용자가 명시적으로 요청할 때만 수행한다.
 
-- Unity MCP broker/relay approval is tied to the long-lived connection. Do **not** stop, kill, or restart `.omx/unity-mcp/umcp`, `broker.py`, or `relay_win.exe --mcp` during normal work.
-- If Unity MCP tool calls fail, inspect status/logs first with `.omx/unity-mcp/umcp status` and `.omx/unity-mcp/umcp logs`; do not run stop/start as a reflex.
-- Restarting Direct MCP can cause Unity to reclassify the connection and revoke/CapacityLimit it. Only restart when the user explicitly requests it, and use the explicit override flags documented by `.omx/unity-mcp/umcp`.
+## 포팅 완료 기준
 
-## Parity standard
+포팅된 기능은 다음 항목에서 약 90% 이상의 실무 동등성을 보여야 완료로 본다.
 
-A ported capability should not be considered complete until it reaches roughly **90% practical parity** across:
+- 트리거/발견 가능성
+- 실제 동작
+- 안전/거버넌스
+- 작업자 사용성
+- 검증 증거
 
-- trigger/discovery parity
-- behavioral parity
-- safety/governance parity
-- operator ergonomics
-- verification evidence
+## 변경 전략
 
-Use `docs/codex-omx-port-matrix.md` as the stable in-repo ledger for this work.
+- 얇은 호환 계층부터 시작한다.
+- 대표 기능 하나를 끝까지 검증한 뒤 확장한다.
+- 되돌릴 수 있고 리뷰 가능한 변경을 선호한다.
+- 허용한 차이는 숨기지 말고 기록한다.
 
-## Change strategy
+## 현재 다음 작업
 
-- Start with thin compatibility layers.
-- Pilot one representative capability end-to-end before scaling a cluster.
-- Prefer reversible, reviewable additions.
-- Record accepted deviations instead of hiding them.
+현재 프로젝트는 사전 제작 / 프로토타입 준비 상태다. 다음 필수 작업은 실제 Unity/FishNet 서버 권한 스모크 프로토타입 구현과 검증이다. 프로토타입이 실제로 검증되기 전에는 `/prototype 완료` 또는 `prototypes/*/README.md` 완료 아티팩트를 만들지 않는다.
 
-## Current pilot target
+## 보고 규칙
 
-The first Codex/OMX pilot capability is the Claude `/help` workflow:
+실질적인 포팅/문서 변경을 할 때는 다음을 보고한다.
 
-- source behavior: `.claude/skills/help/SKILL.md`
-- supporting catalog: `.claude/docs/workflow-catalog.yaml`
-- Codex target: `.codex/skills/ccgs-help/SKILL.md`
-
-## Commit and reporting expectations
-
-When making substantive porting changes:
-
-- list the Claude source files consulted
-- list the Codex/OMX target surfaces added or updated
-- state the current parity estimate
-- note remaining gaps and the next recommended slice
+- 참고한 Claude 원본 파일
+- 추가/수정한 Codex/OMX 표면
+- 현재 동등성 추정
+- 남은 차이와 다음 권장 작업

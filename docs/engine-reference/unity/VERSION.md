@@ -1,57 +1,27 @@
-# Unity Engine — Version Reference
+# Unity 버전 기준
 
-| Field | Value |
-|-------|-------|
-| **Engine Version** | Unity 6.3 LTS |
-| **Release Date** | December 2025 |
-| **Project Pinned** | 2026-02-13 |
-| **Last Docs Verified** | 2026-02-13 |
-| **LLM Knowledge Cutoff** | May 2025 |
+## 현재 고정 버전
 
-## Knowledge Gap Warning
+- **Unity**: 6000.4.5f1
+- **URP**: 17.4.0
+- **Input System**: 1.19.0
+- **Unity Test Framework**: 1.6.0
+- **Multiplayer Play Mode**: 2.0.2
+- **Networking**: FishNet (`Assets/10_FishNet`)
 
-The LLM's training data likely covers Unity up to ~2022 LTS (2022.3). The entire
-Unity 6 release series (formerly Unity 2023 Tech Stream) introduced significant
-changes that the model does NOT know about. Always cross-reference this directory
-before suggesting Unity API calls.
+## 프로젝트 사용 방식
 
-## Post-Cutoff Version Timeline
+ProjectRaidAuthority는 Unity client와 FishNet dedicated server를 분리해 검증한다. 클라이언트는 입력과 표시를 담당하고, 서버는 gameplay truth를 소유한다.
 
-| Version | Release | Risk Level | Key Theme |
-|---------|---------|------------|-----------|
-| 6.0 | Oct 2024 | HIGH | Unity 6 rebrand, new rendering features, Entities 1.3, DOTS improvements |
-| 6.1 | Nov 2024 | MEDIUM | Bug fixes, stability improvements |
-| 6.2 | Dec 2024 | MEDIUM | Performance optimizations, new input system improvements |
-| 6.3 LTS | Dec 2025 | HIGH | First LTS since 6.0, production-ready DOTS, enhanced graphics features |
+## 구현 전 확인해야 할 것
 
-## Major Changes from 2022 LTS to Unity 6.3 LTS
+- FishNet server/client bootstrap 방식
+- headless dedicated server 빌드 설정
+- NetworkObject/NetworkBehaviour 사용 제약
+- RPC/serialization 제약
+- scene loading과 multi-client local test 방식
+- Unity Test Framework에서 서버 권한 흐름을 검증하는 방법
 
-### Breaking Changes
-- **Entities/DOTS**: Major API overhaul in Entities 1.0+, complete redesign of ECS patterns
-- **Input System**: Legacy Input Manager deprecated, new Input System is default
-- **Rendering**: URP/HDRP significant upgrades, SRP Batcher improvements
-- **Addressables**: Asset management workflow changes
-- **Scripting**: C# 9 support, new API patterns
+## 현재 상태
 
-### New Features (Post-Cutoff)
-- **DOTS**: Production-ready Entity Component System (Entities 1.3+)
-- **Graphics**: Enhanced URP/HDRP pipelines, GPU Resident Drawer
-- **Multiplayer**: Netcode for GameObjects improvements
-- **UI Toolkit**: Production-ready for runtime UI (replaces UGUI for new projects)
-- **Async Asset Loading**: Improved Addressables performance
-- **Web**: WebGPU support
-
-### Deprecated Systems
-- **Legacy Input Manager**: Use new Input System package
-- **Legacy Particle System**: Use Visual Effect Graph
-- **UGUI**: Still supported, but UI Toolkit recommended for new projects
-- **Old ECS (GameObjectEntity)**: Replaced by modern DOTS/Entities
-
-## Verified Sources
-
-- Official docs: https://docs.unity3d.com/6000.0/Documentation/Manual/index.html
-- Unity 6 release: https://unity.com/releases/unity-6
-- Unity 6.3 LTS announcement: https://unity.com/blog/unity-6-3-lts-is-now-available
-- Migration guide: https://docs.unity3d.com/6000.0/Documentation/Manual/upgrade-guides.html
-- Unity 6 support: https://unity.com/releases/unity-6/support
-- C# API reference: https://docs.unity3d.com/6000.0/Documentation/ScriptReference/index.html
+이 문서는 버전 고정과 검증 체크리스트다. 실제 API 세부 내용은 smoke prototype 구현 중 로컬 패키지/공식 문서 확인 결과로 갱신한다.
