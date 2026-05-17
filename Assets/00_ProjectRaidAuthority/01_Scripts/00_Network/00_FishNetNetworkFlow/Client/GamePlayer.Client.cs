@@ -1,25 +1,52 @@
 using UnityEngine;
-#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
-#endif
 
 namespace ProjectRaidAuthority.Networking
 {
     public sealed partial class GamePlayer
     {
+        private const string PlayerActionMapName = "Player";
+        private const string MoveActionName = "Move";
+        private const string PointActionName = "Point";
+        [Header("Owner Input")]
+        [SerializeField] private InputActionReference moveActionReference;
+        [SerializeField] private InputActionReference pointActionReference;
+        [SerializeField] private InputActionAsset fallbackInputActions;
+
+        private InputAction moveAction;
+        private InputAction pointAction;
+        private bool ownerEnabledMoveAction;
+        private bool ownerEnabledPointAction;
+        private Vector2 lastConfirmedLookDirection = Vector2.up;
+
         public override void OnStartClient()
         {
             base.OnStartClient();
-            cachedRenderer = GetComponentInChildren<Renderer>();
+            cachedRenderer = GetComponent<Renderer>();
             ApplyColor();
 
             if (IsOwner)
             {
                 ServerSetDisplayName($"플레이어 {OwnerId}");
-                AttachCamera();
+                InitializeOwnerClientState();
             }
 
             gameObject.name = displayName.Value;
+        }
+
+        public override void OnStopClient()
+        {
+            if (IsOwner)
+            {
+                CleanupOwnerClientState();
+            }
+
+            base.OnStopClient();
+        }
+
+        partial void OnSharedDestroyed()
+        {
+            CleanupOwnerClientState();
         }
 
         private void OnGUI()
@@ -29,47 +56,91 @@ namespace ProjectRaidAuthority.Networking
                 return;
             }
 
-            GUI.Label(new Rect(16, 16, 640, 28), "Network Flow: 마우스로 방향을 잡고 WASD/화살표 키 입력을 서버 권한 이동으로 보냅니다");
+            GUI.Label(new Rect(16, 16, 760, 28), "Network Flow: WASD/화살표는 카메라 기준 이동, 캐릭터 시선은 항상 마우스 위치를 따라갑니다");
         }
 
-        private static Vector2 ReadMoveInput()
+        private void InitializeOwnerClientState()
         {
-            Vector2 input = Vector2.zero;
+            lastConfirmedLookDirection = CurrentForwardDirection();
+            lastSentLookDirection = lastConfirmedLookDirection;
+            lastSentMoveDirection = Vector2.zero;
+            nextInputSendTime = 0f;
 
-#if ENABLE_INPUT_SYSTEM
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard != null)
+            InitializeOwnerInputActions();
+            InitializeOwnerCamera();
+        }
+
+        private void CleanupOwnerClientState()
+        {
+            ReleaseOwnerInputActions();
+            ReleaseOwnerCamera();
+        }
+
+        private void InitializeOwnerInputActions()
+        {
+            moveAction = ResolveOwnerAction(moveActionReference, MoveActionName);
+            pointAction = ResolveOwnerAction(pointActionReference, PointActionName);
+            EnableOwnerAction(moveAction, ref ownerEnabledMoveAction);
+            EnableOwnerAction(pointAction, ref ownerEnabledPointAction);
+
+            if (moveAction == null || pointAction == null)
             {
-                if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
-                {
-                    input.x -= 1f;
-                }
-
-                if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
-                {
-                    input.x += 1f;
-                }
-
-                if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
-                {
-                    input.y -= 1f;
-                }
-
-                if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
-                {
-                    input.y += 1f;
-                }
+                Debug.LogWarning($"[NetworkFlow] {nameof(GamePlayer)} 입력 Action 참조가 부족합니다. " +
+                                 $"{PlayerActionMapName}/{MoveActionName}, {PlayerActionMapName}/{PointActionName} 연결을 확인하세요.", this);
             }
-#endif
+        }
 
-#if ENABLE_LEGACY_INPUT_MANAGER
-            if (input == Vector2.zero)
+        private InputAction ResolveOwnerAction(InputActionReference actionReference, string actionName)
+        {
+            if (actionReference != null && actionReference.action != null)
             {
-                input = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+                return actionReference.action;
             }
-#endif
 
-            return Vector2.ClampMagnitude(input, 1f);
+            InputActionMap playerMap = fallbackInputActions != null
+                ? fallbackInputActions.FindActionMap(PlayerActionMapName, false)
+                : null;
+            return playerMap?.FindAction(actionName, false);
+        }
+
+        private static void EnableOwnerAction(InputAction action, ref bool enabledByOwner)
+        {
+            enabledByOwner = false;
+            if (action == null || action.enabled)
+            {
+                return;
+            }
+
+            action.Enable();
+            enabledByOwner = true;
+        }
+
+        private void ReleaseOwnerInputActions()
+        {
+            DisableOwnerAction(moveAction, ref ownerEnabledMoveAction);
+            DisableOwnerAction(pointAction, ref ownerEnabledPointAction);
+            moveAction = null;
+            pointAction = null;
+        }
+
+        private static void DisableOwnerAction(InputAction action, ref bool enabledByOwner)
+        {
+            if (action != null && enabledByOwner)
+            {
+                action.Disable();
+            }
+
+            enabledByOwner = false;
+        }
+
+        private Vector2 ReadMoveInput()
+        {
+            if (moveAction == null)
+            {
+                return Vector2.zero;
+            }
+
+            return Vector2.ClampMagnitude(moveAction.ReadValue<Vector2>(), 1f);
         }
 
         private void SendOwnedMovementInput()
@@ -80,59 +151,60 @@ namespace ProjectRaidAuthority.Networking
             }
 
             Vector2 localMoveInput = ReadMoveInput();
-            Vector2 lookDirection = ReadLookDirection();
-            Vector2 moveDirection = CalculateWorldMoveDirection(localMoveInput, lookDirection);
+            Vector2 moveDirection = CalculateCameraRelativeMoveDirection(localMoveInput);
+            bool lookChangedThisFrame = TryUpdateConfirmedLookDirectionFromPointer();
 
-            if (!ShouldSendMovementInput(moveDirection, lookDirection))
+            if (!ShouldSendMovementInput(moveDirection, lookChangedThisFrame))
             {
                 return;
             }
 
-            float sendInterval = 1f / Mathf.Max(1f, inputSendRate);
+            float sendInterval = IsInstantApply(inputSendRate) ? 0f : 1f / Mathf.Max(1f, inputSendRate);
             nextInputSendTime = Time.unscaledTime + sendInterval;
             lastSentMoveDirection = moveDirection;
-            lastSentLookDirection = lookDirection;
+            lastSentLookDirection = lastConfirmedLookDirection;
 
-            ServerSetMovementInput(moveDirection, lookDirection);
+            ServerSetMovementInput(moveDirection, lastConfirmedLookDirection);
         }
 
-        private bool ShouldSendMovementInput(Vector2 moveDirection, Vector2 lookDirection)
+        private bool ShouldSendMovementInput(Vector2 moveDirection, bool lookChangedThisFrame)
         {
             float moveDelta = (moveDirection - lastSentMoveDirection).sqrMagnitude;
-            float lookDelta = (lookDirection - lastSentLookDirection).sqrMagnitude;
-            return moveDelta > InputChangeEpsilon || lookDelta > InputChangeEpsilon;
+            float lookDelta = (lastConfirmedLookDirection - lastSentLookDirection).sqrMagnitude;
+            return moveDelta > InputChangeEpsilon || (lookChangedThisFrame && lookDelta > InputChangeEpsilon);
         }
 
-        private Vector2 ReadLookDirection()
+        private bool TryUpdateConfirmedLookDirectionFromPointer()
         {
-            Camera mainCamera = Camera.main;
-            if (mainCamera == null)
+            if (!TryReadPointerLookDirection(out Vector2 lookDirection))
             {
-                return CurrentForwardDirection();
+                return false;
             }
 
-#if ENABLE_INPUT_SYSTEM
-            Mouse mouse = Mouse.current;
-            if (mouse != null)
+            if ((lookDirection - lastConfirmedLookDirection).sqrMagnitude <= InputChangeEpsilon)
             {
-                return ScreenPointToLookDirection(mainCamera, mouse.position.ReadValue());
+                return false;
             }
-#endif
 
-#if ENABLE_LEGACY_INPUT_MANAGER
-            return ScreenPointToLookDirection(mainCamera, Input.mousePosition);
-#else
-            return CurrentForwardDirection();
-#endif
+            lastConfirmedLookDirection = lookDirection;
+            return true;
         }
 
-        private Vector2 ScreenPointToLookDirection(Camera mainCamera, Vector2 screenPosition)
+        private bool TryReadPointerLookDirection(out Vector2 lookDirection)
         {
-            Ray ray = mainCamera.ScreenPointToRay(screenPosition);
+            lookDirection = lastConfirmedLookDirection;
+            Camera targetCamera = GetOwnerCamera();
+            if (targetCamera == null || pointAction == null)
+            {
+                return false;
+            }
+
+            Vector2 screenPosition = pointAction.ReadValue<Vector2>();
+            Ray ray = targetCamera.ScreenPointToRay(screenPosition);
             Plane groundPlane = new Plane(Vector3.up, transform.position);
             if (!groundPlane.Raycast(ray, out float enter))
             {
-                return CurrentForwardDirection();
+                return false;
             }
 
             Vector3 hitPoint = ray.GetPoint(enter);
@@ -141,11 +213,12 @@ namespace ProjectRaidAuthority.Networking
 
             if (lookVector.sqrMagnitude <= DirectionEpsilon)
             {
-                return CurrentForwardDirection();
+                return false;
             }
 
             lookVector.Normalize();
-            return new Vector2(lookVector.x, lookVector.z);
+            lookDirection = new Vector2(lookVector.x, lookVector.z);
+            return true;
         }
 
         private Vector2 CurrentForwardDirection()
@@ -161,34 +234,11 @@ namespace ProjectRaidAuthority.Networking
             return new Vector2(forward.x, forward.z);
         }
 
-        private static Vector2 CalculateWorldMoveDirection(Vector2 localMoveInput, Vector2 lookDirection)
-        {
-            localMoveInput = Vector2.ClampMagnitude(localMoveInput, 1f);
-            lookDirection = SanitizeDirection(lookDirection, Vector2.up);
-
-            Vector2 rightDirection = new Vector2(lookDirection.y, -lookDirection.x);
-            Vector2 worldMoveDirection = rightDirection * localMoveInput.x + lookDirection * localMoveInput.y;
-            return Vector2.ClampMagnitude(worldMoveDirection, 1f);
-        }
-
-        private void AttachCamera()
-        {
-            Camera mainCamera = Camera.main;
-            if (mainCamera == null)
-            {
-                return;
-            }
-
-            mainCamera.transform.SetParent(transform, false);
-            mainCamera.transform.localPosition = new Vector3(0f, 5f, -7f);
-            mainCamera.transform.localRotation = Quaternion.Euler(35f, 0f, 0f);
-        }
-
         private void ApplyColor()
         {
             if (cachedRenderer == null)
             {
-                cachedRenderer = GetComponentInChildren<Renderer>();
+                cachedRenderer = GetComponent<Renderer>();
             }
 
             if (cachedRenderer != null)

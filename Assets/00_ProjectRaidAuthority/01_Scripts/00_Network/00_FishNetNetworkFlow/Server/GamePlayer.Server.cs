@@ -26,7 +26,16 @@ namespace ProjectRaidAuthority.Networking
 
             Vector3 lookVector = new Vector3(serverLookDirection.x, 0f, serverLookDirection.y);
             Quaternion targetRotation = Quaternion.LookRotation(lookVector, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, turnSpeed * deltaTime);
+            transform.rotation = IsInstantApply(turnSpeed)
+                ? targetRotation
+                : Quaternion.RotateTowards(transform.rotation, targetRotation, turnSpeed * deltaTime);
+
+            if (Time.unscaledTime >= nextServerRotationLogTime)
+            {
+                nextServerRotationLogTime = Time.unscaledTime + serverMoveLogInterval;
+                float yawDelta = Quaternion.Angle(transform.rotation, targetRotation);
+                Debug.Log($"[FishNet Authority Smoke] 서버 회전 적용: owner={OwnerId}, currentYaw={transform.eulerAngles.y:F1}, targetYaw={targetRotation.eulerAngles.y:F1}, yawDelta={yawDelta:F2}, look={serverLookDirection}");
+            }
         }
 
         [ServerRpc]

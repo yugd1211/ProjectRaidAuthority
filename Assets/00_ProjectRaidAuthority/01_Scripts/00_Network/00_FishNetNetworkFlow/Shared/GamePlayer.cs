@@ -11,8 +11,8 @@ namespace ProjectRaidAuthority.Networking
     public sealed partial class GamePlayer : NetworkBehaviour
     {
         [SerializeField] private float moveSpeed = 4f;
-        [SerializeField] private float turnSpeed = 160f;
-        [SerializeField, Range(1f, 60f)] private float inputSendRate = 30f;
+        [SerializeField, Tooltip("-1이면 서버 회전을 목표 방향으로 즉시 적용합니다.")] private float turnSpeed = 160f;
+        [SerializeField, Range(-1f, 60f), Tooltip("-1이면 입력 전송 rate limit을 끄고 매 프레임 변경을 즉시 전송합니다.")] private float inputSendRate = 30f;
         [SerializeField] private float serverMoveLogInterval = 0.5f;
 
         private readonly SyncVar<string> displayName = new("플레이어");
@@ -23,13 +23,17 @@ namespace ProjectRaidAuthority.Networking
         private bool hasServerLookDirection;
         private float nextInputSendTime;
         private float nextServerMoveLogTime;
+        private float nextServerRotationLogTime;
         private Vector2 lastSentMoveDirection;
         private Vector2 lastSentLookDirection = Vector2.up;
 
         private const float InputChangeEpsilon = 0.0001f;
         private const float DirectionEpsilon = 0.0001f;
+        private const float InstantApplyThreshold = 0f;
         private static readonly Color LocalColor = new Color(0.1f, 0.65f, 1f);
         private static readonly Color RemoteColor = new Color(1f, 0.72f, 0.16f);
+
+        partial void OnSharedDestroyed();
 
         private void Awake()
         {
@@ -39,6 +43,7 @@ namespace ProjectRaidAuthority.Networking
         private void OnDestroy()
         {
             displayName.OnChange -= OnDisplayNameChanged;
+            OnSharedDestroyed();
         }
 
         private void Update()
@@ -57,6 +62,11 @@ namespace ProjectRaidAuthority.Networking
         private void OnDisplayNameChanged(string oldName, string newName, bool asServer)
         {
             gameObject.name = newName;
+        }
+
+        private static bool IsInstantApply(float value)
+        {
+            return value < InstantApplyThreshold;
         }
 
         private static Vector2 SanitizeDirection(Vector2 direction, Vector2 fallback)
