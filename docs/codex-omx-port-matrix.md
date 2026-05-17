@@ -138,6 +138,8 @@ This document tracks how Claude-native CCGS behaviors are being ported into Code
 | `.claude/hooks/log-agent*.sh` | `.omx/state/subagent-tracking.json` | Strong | Subagent audit trail already present |
 | `.claude/statusline.sh` | `.codex/hooks/statusline-compatibility.sh` + `.codex/config.toml` + OMX HUD/tmux runtime + phase artifacts | In progress | Callable renderer plus project-local TUI status line config added; exact custom renderer wiring still pending |
 | commit/push/asset/skill validation hooks | `.codex/hooks/validate-commit-compatibility.sh`, `.codex/hooks/validate-push-compatibility.sh`, `.codex/hooks/validate-assets-compatibility.sh`, `.codex/hooks/validate-skill-change-compatibility.sh`, plus `.codex/hooks.json` and AGENTS rules | In progress | Callable validation entrypoints plus project-local hook wiring added; real-session adoption semantics still need verification |
+| Unity MCP approval/session safety | `AGENTS.md` + `docs/operations/unity-mcp-session-policy.md` | Added | Unity MCP tool 호출은 사용자 대화를 오케스트레이션하는 루트 OMX 세션으로만 제한한다. 보조 세션/worker/subagent의 직접 호출은 `Connection revoked` 루프를 만들 수 있으므로 금지한다. |
+| Unity AI MCP -> MCP for Unity migration | `Packages/manifest.json`, `UserSettings/mcp.json`, `~/.codex/config.toml`, CoplayDev `unity-mcp` | Added | Unity AI Assistant 공식 MCP의 구독/credits/승인 의존을 제거하고 `com.coplaydev.unity-mcp` + Codex HTTP MCP `mcp_for_unity`로 전환했다. WSL `uvx`로 `mcp-for-unity --transport http --http-url http://127.0.0.1:8080 --project-scoped-tools`를 실행해 `project_info`, `editor_state`, `read_console` smoke를 통과했다. |
 
 **Accepted hooks & automation deviations (current state)**
 
@@ -145,6 +147,7 @@ This document tracks how Claude-native CCGS behaviors are being ported into Code
 - Event-driven Claude checks may currently land as AGENTS rules, OMX runtime behavior, or workflow-driven checks in Codex/OMX.
 - Notification, compaction, and subagent auditing already map well to OMX-native runtime/state surfaces.
 - Commit, push, asset, and skill-change validation now have callable compatibility entrypoints plus project-local hook wiring, and project-local statusline config is present. Real-session adoption semantics are partially clarified: `CODEX_HOME=.codex` loads project-local config/skills, but a live `codex exec` hit `401 Unauthorized`, indicating auth is also scoped to `CODEX_HOME` and needs a project-scope strategy for higher parity.
+- Unity MCP 운영은 2026-05-16 마이그레이션 이후 Unity AI Assistant `relay_win.exe --mcp` 경로가 아니라 CoplayDev 오픈소스 MCP for Unity HTTP 경로를 기본값으로 삼는다. WSL에서 서버 프로세스를 직접 띄우는 경우 Codex 설정은 HTTP endpoint만 보유하므로, 재시작 후에는 `uvx --from mcpforunityserver mcp-for-unity --transport http --http-url http://127.0.0.1:8080 --project-scoped-tools`를 먼저 실행해야 한다.
 
 ## Current rules & path-standards coverage
 

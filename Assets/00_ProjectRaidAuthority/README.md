@@ -16,10 +16,9 @@
 | 경로 | 용도 |
 |---|---|
 | `00_Scenes/` | 프로젝트 씬 |
-| `00_Scenes/00_FishNetSample/` | FishNet 샘플 씬 |
+| `00_Scenes/00_FishNetNetworkFlow/` | FishNet Network Flow 씬 |
 | `01_Scripts/` | 프로젝트 C# 코드 |
 | `01_Scripts/00_Network/` | 네트워크/서버/멀티플레이 관련 코드 |
-| `01_Scripts/90_Editor/` | 에디터 전용 빌더/검증 코드 |
 | `02_Prefabs/` | 재사용 GameObject 프리팹 |
 | `02_Prefabs/00_Network/` | 네트워크 프리팹 |
 | `03_Settings/` | 프로젝트 설정 에셋 |
@@ -47,15 +46,14 @@
   - 현재 FishNet은 `Assets/10_FishNet`에 있습니다.
 - 수동 관리 외부 에셋은 `Assets/20_ThirdParty/<VendorOrAssetName>`에 둘 수 있습니다.
 - 외부 플러그인 원본은 가능한 직접 수정하지 않습니다.
-- 프로젝트 전용 어댑터, 래퍼, 샘플 씬, 게임별 통합 코드는 `Assets/00_ProjectRaidAuthority` 아래에 작성합니다.
+- 프로젝트 전용 어댑터, 래퍼, Network Flow 씬, 게임별 통합 코드는 `Assets/00_ProjectRaidAuthority` 아래에 작성합니다.
 - `Editor`, `Resources`, `StreamingAssets`, `Plugins`, `Gizmos`, `Editor Default Resources`처럼 Unity가 예약한 폴더명은 Unity 규칙을 우선합니다.
 - 파일/폴더를 이동할 때는 `.meta` 파일도 함께 이동해 GUID 참조를 유지합니다.
 
-## 현재 FishNet 샘플 위치
+## 현재 FishNet Network Flow 위치
 
-- Scenes: `Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetSample`
-- Prefabs: `Assets/00_ProjectRaidAuthority/02_Prefabs/00_Network/00_FishNetSample`
-- Runtime scripts: `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetSample`
-- Editor builder/tests: `Assets/00_ProjectRaidAuthority/01_Scripts/90_Editor`
+- Scenes: `Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetNetworkFlow`
+- Prefabs: `Assets/00_ProjectRaidAuthority/02_Prefabs/00_Network/00_FishNetNetworkFlow`
+- Runtime scripts: `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow`
 
 FishNet 플러그인 자체는 `Assets/10_FishNet`에 있으며, third-party/vendor 코드로 취급합니다.

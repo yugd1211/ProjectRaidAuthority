@@ -28,7 +28,7 @@ Complete closeout required fields:
 | 제품 방향 / core loop | Asset Docs를 읽고 CCGS `game-concept.md` 최소 본문으로 요약 | 원문: Asset Docs, workflow artifact: `design/gdd/game-concept.md` |
 | Phase/stage | `production/stage.txt`를 PM/개발총괄 권한으로 수동 생성 | `production/stage.txt` |
 | Sprint/week 상태 | 이 문서를 기준으로 sprint-status 요약 생성 | 본문: Asset Docs, 상태 요약: `production/sprint-status.yaml` |
-| 기술 결정 | 서버 권위 방향을 ADR/control-manifest 후보로 변환 | `docs/architecture/adr-*.md`, `docs/architecture/control-manifest.md` |
+| 기술 결정 | 서버 권위 방향과 FishNet 네트워크 진입 흐름을 ADR/control-manifest 후보로 변환 | `docs/architecture/adr-*.md`, `docs/architecture/control-manifest.md`, `docs/architecture/fishnet-network-flow-architecture.html` |
 | 요구사항 추적 | 핵심 TR-ID 후보를 등록할지 결정 | `docs/architecture/tr-registry.yaml` |
 | 사업/시장 hold | 출시/BM/서버비/외부 데모 기준을 master plan에 반영 | `Assets/.../02_ProductPlan/01_master_development_plan.md` |
 
@@ -121,6 +121,9 @@ Complete closeout required fields:
 
 - [ ] Entity/Player/Raid/ItemInstance/RaidEvent 데이터 모델 상세화.
 - [ ] FishNet dedicated server 접속 실험 계획.
+- [ ] `IMatchmakingService` / `MatchAssignment` / `SingleServerMatchmaker`로 단일 서버 자동 매칭 추상화 구현 계획.
+- [ ] `OfflineBootstrap → MatchRoom → Gameplay` MPPM 스모크 테스트 계획.
+- [ ] `RoomPlayer`와 `GamePlayer` 생명주기/책임 경계 검증 계획.
 - [ ] Tick/Snapshot/AOI 초기값 결정 ADR 작성.
 - [ ] 서버 확정 항목을 control-manifest 규칙으로 변환.
 - [ ] 첫 번째 server-core story/sprint 후보 작성.

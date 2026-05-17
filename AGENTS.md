@@ -49,6 +49,9 @@ Claude-native 동작을 Codex/OMX로 옮길 때 우선순위는 다음과 같다
 - `.omx/unity-mcp/umcp`, `broker.py`, `relay_win.exe --mcp`는 장기 연결 승인과 묶여 있으므로 평소에는 중지/재시작하지 않는다.
 - Unity MCP 호출이 실패하면 먼저 `.omx/unity-mcp/umcp status`, `.omx/unity-mcp/umcp logs`로 상태를 확인한다.
 - Direct MCP 재시작은 Unity가 연결을 새로 분류해 권한/용량 문제가 생길 수 있으므로 사용자가 명시적으로 요청할 때만 수행한다.
+- Unity Editor 자체를 확인하는 MCP tool 호출(`mcp__unity_mcp__.*`, 예: `Unity_GetConsoleLogs`, `Unity_RunCommand`, 화면 캡처 등)은 반드시 현재 사용자 대화를 오케스트레이션하는 **루트 OMX 세션**에서만 수행한다.
+- Codex native subagent, OMX worker/team pane, 새로 만든 보조 Codex 세션, MPPM clone 확인용 세션은 Unity MCP tool을 직접 호출하지 않는다. 필요한 경우 루트 세션에 “Unity MCP 확인 요청”을 보고하고 루트가 단일 연결에서 실행한다.
+- Unity MCP 승인이 흔들릴 때는 새 세션을 만들어 재시도하지 않는다. 세션 재생성은 Unity가 연결을 새 앱/새 승인 대상으로 분류해 `Connection revoked` 루프를 만들 수 있으므로, 루트 세션에서만 상태/로그를 확인하고 사용자가 명시적으로 허가할 때만 재시작한다.
 
 ## 포팅 완료 기준
 

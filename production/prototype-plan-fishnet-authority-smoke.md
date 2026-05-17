@@ -26,6 +26,56 @@ Unity/FishNet dedicated server가 게임플레이 진실 상태를 소유할 수
 - RequestId 기반 loot transaction
 - extraction hold와 commit event
 
+## 코드 구조 원칙
+
+서버 권한 스모크 프로토타입은 한 Unity/FishNet 프로젝트 안에서 서버와 클라이언트를 함께 빌드·실행하되, 코드 배치는 기능 도메인별로 `Client` / `Server` / `Shared` 하위 폴더를 둔다.
+
+```text
+Assets/00_ProjectRaidAuthority/01_Scripts/
+  00_Network/
+    Bootstrap/
+    Shared/
+
+  10_Raid/
+    Shared/
+    Server/
+    Client/
+
+  20_Player/
+    Shared/
+    Server/
+    Client/
+
+  30_Loot/
+    Shared/
+    Server/
+    Client/
+```
+
+### 의미
+
+- `Client`: 입력 수집, UI, 카메라, VFX, 로컬 표시, `ServerRpc` 요청 전송을 담당한다. 결과를 직접 확정하지 않는다.
+- `Server`: 이동·전투·루팅·탈출 같은 게임플레이 결과를 검증하고 확정한다. 서버 권한 상태 변경과 검증 로그를 담당한다.
+- `Shared`: 서버와 클라이언트가 함께 알아야 하는 enum, DTO, request payload, state id, 설정값을 둔다. 확정 로직은 두지 않는다.
+- `Bootstrap`: MPPM 태그, dedicated server, host/client 시작처럼 실행 역할을 선택하는 시작 코드를 둔다. 서버/클라이언트 시작 API가 함께 있어도 게임플레이 확정 로직과 분리한다.
+
+### 의도
+
+이 구조는 “한 프로젝트에서 서버와 클라이언트를 모두 사용한다”는 FishNet 개발 방식을 유지하면서도, 게임플레이 책임이 섞이는 것을 막기 위한 경계다. 기능을 고칠 때는 `Raid`, `Player`, `Loot` 같은 도메인 안에서 관련 서버·클라이언트·공유 코드를 함께 찾을 수 있고, 서버 권한 위반 여부는 `Client` 코드가 결과를 직접 변경하는지 확인하는 방식으로 검토한다.
+
+스모크 프로토타입의 최소 흐름은 다음 경계를 따른다.
+
+```text
+Client 입력 코드
+  → ServerRpc 요청
+Server 권한 코드
+  → 검증 / 상태 확정 / 로그
+Shared 상태·payload
+  → SyncVar 또는 ObserversRpc로 Client 표시
+Client 표현 코드
+  → UI/VFX/로컬 표시만 수행
+```
+
 ## 완료 기준
 
 - [ ] 서버와 클라이언트가 분리 실행된다.

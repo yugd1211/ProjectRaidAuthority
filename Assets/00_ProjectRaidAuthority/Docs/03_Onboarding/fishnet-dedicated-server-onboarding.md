@@ -34,7 +34,7 @@
 | 구분 | PUN2 | FishNet + Dedicated Server |
 |---|---|---|
 | 기본 관점 | Photon Cloud/Photon Server에 클라이언트가 접속 | Unity 게임 인스턴스가 서버 또는 호스트로 실행 |
-| 빠른 시작 | 쉬움 | 샘플은 쉽지만 운영 서버는 직접 설계 필요 |
+| 빠른 시작 | 쉬움 | Network Flow는 쉽지만 운영 서버는 직접 설계 필요 |
 | 서버 로직 통제 | Photon Cloud 사용 시 제한적, 자체 Photon Server면 가능 | Unity C# 코드로 직접 통제 |
 | 권위 모델 | 룸/마스터 클라이언트/Photon 서버 구조 이해 필요 | FishNet 기본은 서버 권위 중심 |
 | 운영 부담 | Cloud 사용 시 낮음 | 서버 빌드, 호스팅, 배포, 모니터링 부담 증가 |
@@ -63,7 +63,7 @@ FishNet에서 자주 나오는 용어는 다음처럼 이해하면 됩니다.
 
 ## 5. 이 프로젝트에서 먼저 볼 위치
 
-현재 repo에는 FishNet vendor 코드와 ProjectRaidAuthority용 FishNet 샘플이 모두 있습니다.
+현재 repo에는 FishNet vendor 코드와 ProjectRaidAuthority용 FishNet Network Flow이 모두 있습니다.
 
 ### FishNet 패키지/엔진 코드
 
@@ -75,21 +75,25 @@ FishNet에서 자주 나오는 용어는 다음처럼 이해하면 됩니다.
 - `Assets/10_FishNet/Runtime/Transporting/`
 - `Assets/10_FishNet/Runtime/Transporting/Transports/Tugboat/`
 
-FishNet에는 샘플에서 바로 쓰는 내장 RoomManager가 없으므로, 현재 프로젝트에서는 `FishNetSampleRoomManager`가 연결 시작, 룸 씬 로드, Ready 상태 확인, 게임플레이 씬 로드, 플레이어 스폰 흐름을 담당합니다.
+FishNet에는 바로 쓰는 내장 NetworkFlowController가 없으므로, 현재 프로젝트에서는 `FishNetNetworkFlowController`가 연결 시작, 룸 씬 로드, Ready 상태 확인, 게임플레이 씬 로드, 플레이어 스폰 흐름을 담당합니다.
 
-### 프로젝트 FishNet 샘플
+### 프로젝트 FishNet Network Flow
 
-- `Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetSample/FishNetOffline.unity`
-- `Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetSample/FishNetGameRoom.unity`
-- `Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetSample/FishNetGamePlay.unity`
-- `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetSample/FishNetSampleRoomManager.cs`
-- `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetSample/FishNetSampleRoomPlayer.cs`
-- `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetSample/FishNetSampleGamePlayer.cs`
-- `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetSample/FishNetSampleOfflineMenu.cs`
-- `Assets/00_ProjectRaidAuthority/01_Scripts/90_Editor/FishNetSampleSceneBuilder.cs`
-- `Assets/00_ProjectRaidAuthority/02_Prefabs/00_Network/00_FishNetSample/`
+- `Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetNetworkFlow/OfflineBootstrap.unity`
+- `Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetNetworkFlow/MatchRoom.unity`
+- `Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetNetworkFlow/Gameplay.unity`
+- `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Shared/FishNetNetworkFlowController.cs`
+- `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Client/FishNetNetworkFlowController.Client.cs`
+- `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Server/FishNetNetworkFlowController.Server.cs`
+- `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Shared/RoomPlayer.cs`
+- `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Client/RoomPlayer.Client.cs`
+- `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Server/RoomPlayer.Server.cs`
+- `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Shared/GamePlayer.cs`
+- `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Client/GamePlayer.Client.cs`
+- `Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Server/GamePlayer.Server.cs`
+- `Assets/00_ProjectRaidAuthority/02_Prefabs/00_Network/00_FishNetNetworkFlow/`
 
-이 문서를 읽은 뒤에는 위 샘플을 “서버/룸/게임플레이 흐름을 보는 실험실”로 쓰면 됩니다.
+이 문서를 읽은 뒤에는 위 Network Flow를 “서버/룸/게임플레이 흐름을 보는 실험실”로 쓰면 됩니다.
 
 ## 6. TCP, UDP, Transport를 게임 서버 관점에서 이해하기
 
@@ -125,24 +129,24 @@ FishNet으로 시작할 때는 일단 프로젝트에 붙어 있는 Transport �
 2. 클라이언트가 서버에 붙는다.
 3. 플레이어 오브젝트 또는 간단한 상태가 동기화된다.
 
-### Step 1. 샘플 씬을 이해한다
+### Step 1. Network Flow 씬을 이해한다
 
-먼저 다음 순서로 샘플을 봅니다.
+먼저 다음 순서로 Network Flow를 봅니다.
 
-1. `FishNetOffline.unity`
+1. `OfflineBootstrap.unity`
    - 메뉴/진입점
    - Host/Client 시작 버튼 흐름
-2. `FishNetGameRoom.unity`
+2. `MatchRoom.unity`
    - 룸 플레이어
    - Ready 상태
    - 게임 씬으로 넘어가기 전 대기 흐름
-3. `FishNetGamePlay.unity`
+3. `Gameplay.unity`
    - 실제 플레이어 프리팹
    - 이동 또는 상태 동기화
 
 확인할 질문은 다음입니다.
 
-- `NetworkManager` 또는 `FishNetSampleRoomManager`는 어느 GameObject에 붙어 있는가?
+- `NetworkManager` 또는 `FishNetNetworkFlowController`는 어느 GameObject에 붙어 있는가?
 - Transport는 무엇인가?
 - Offline Scene과 Online Scene은 무엇으로 설정되어 있는가?
 - Player Prefab과 Room Player Prefab은 어디를 바라보는가?
@@ -265,7 +269,7 @@ FishNet을 쓰는 이유가 Dedicated Server라면 핵심은 서버 권위입니
 
 ### 로컬 Host 체크
 
-- [ ] `FishNetOffline.unity`에서 Host 시작 가능
+- [ ] `OfflineBootstrap.unity`에서 Host 시작 가능
 - [ ] 룸 또는 게임 씬으로 이동 가능
 - [ ] 플레이어 프리팹 생성 확인
 - [ ] Console에 FishNet 오류 없음
@@ -297,7 +301,7 @@ FishNet을 쓰는 이유가 Dedicated Server라면 핵심은 서버 권위입니
 
 처음부터 완성 서버를 만들기보다 다음 산출물을 차례로 만들면 좋습니다.
 
-1. **FishNet 샘플 실행 노트**
+1. **FishNet Network Flow 실행 노트**
    - 어떤 씬에서 어떤 버튼을 누르면 어떤 상태가 되는지 기록
 2. **Host/Client 로그 비교표**
    - Host, ServerOnly, ClientOnly에서 찍히는 로그 차이 기록
@@ -318,12 +322,12 @@ FishNet을 쓰는 이유가 Dedicated Server라면 핵심은 서버 권위입니
 - Authority, Spawn, NetworkObject, NetworkBehaviour, ServerRpc/ObserversRpc
 - Transport, Port, Address
 
-### 2~3일차: FishNet 샘플 실행
+### 2~3일차: FishNet Network Flow 실행
 
 - Host 실행
 - Client 접속
 - Room 흐름 확인
-- GamePlay 씬 동기화 확인
+- Gameplay 씬 동기화 확인
 
 ### 4~5일차: 서버 권위 미니 기능
 
@@ -355,7 +359,7 @@ FishNet을 쓰는 이유가 Dedicated Server라면 핵심은 서버 권위입니
 
 이 문서는 “최종 아키텍처 결정”이 아니라 온보딩 문서입니다. 따라서 지금의 정답은 다음입니다.
 
-- 먼저 FishNet 샘플을 실행해서 Host/Client/ServerOnly 차이를 몸으로 확인한다.
+- 먼저 FishNet Network Flow을 실행해서 Host/Client/ServerOnly 차이를 몸으로 확인한다.
 - Dedicated Server는 Unity 서버 빌드 타겟과 FishNet 서버 시작 부트스트랩이 맞아야 한다.
 - Transport/포트/방화벽은 실제 접속 실패를 해결할 때 반드시 이해해야 한다.
 - Kubernetes는 초기 학습 주제가 아니라, 서버 빌드와 수동 배포가 성공한 뒤의 운영 주제다.

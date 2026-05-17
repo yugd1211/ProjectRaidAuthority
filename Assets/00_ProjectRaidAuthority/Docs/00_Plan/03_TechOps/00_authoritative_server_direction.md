@@ -74,6 +74,26 @@ Send Ack to Client
 | AOI 재계산 | 0.2~0.5초 | CPU와 가시성 반응 균형 |
 | 라그 보상 | 제한형, 100~150ms 후보 | PvE 중심 MVP에서 전체 리와인드 비용 절감 |
 
+
+## Lobby / Matchmaking 책임 경계
+
+FishNet은 현재 프로젝트에서 Transport, NetworkObject, ownership, SceneManager 기반 씬 전환을 담당한다. Photon식 managed Lobby/Matchmaking은 FishNet 자체 기능으로 가정하지 않고 프로젝트 레벨 서비스로 분리한다.
+
+| 계층 | 담당 | 현재 구현 방향 | 향후 교체 후보 |
+|---|---|---|---|
+| Lobby UI / 선택 | 방 목록, 빠른 매칭, 파티 선택 | MVP 전에는 자동 매칭으로 생략 | Steam Lobby, PlayFab, Nakama, Custom Backend |
+| Matchmaking | 서버 주소/포트/roomId/token 배정 | `SingleServerMatchmaker`가 단일 개발 서버 반환 | Unity Matchmaker, PlayFab Matchmaking, 직접 매치 서버 |
+| FishNet Bootstrap | `MatchAssignment`를 받아 FishNet 연결 시작 | `ClientManager.StartConnection(address)` 계열 호출 | Transport 설정만 교체 |
+| Match Room | connection별 Ready/선택/로드 상태 | `MatchRoom` + `RoomPlayer` | 서버 도메인 `RoomSessionService`로 로직 이동 |
+| Gameplay | 전투/이동/HP/루팅/탈출 확정 | `Gameplay` + `GamePlayer` + 서버 서비스 | dedicated raid server 다중 인스턴스 |
+
+경계 규칙:
+
+- `IMatchmakingService`는 `RoomPlayer`, `GamePlayer`, FishNet scene 내부 구현을 알지 않는다.
+- `RoomPlayer`는 Match Room 단계의 임시 per-connection `NetworkObject`이며 영속 상태를 소유하지 않는다.
+- `GamePlayer`와 서버 도메인 서비스가 레이드 중 실제 상태를 확정한다.
+- 서버가 하나뿐인 현재 단계에서도 인터페이스를 먼저 두어 나중의 외부 로비/매칭 교체 비용을 줄인다.
+
 ## 운영 구조
 
 ```mermaid

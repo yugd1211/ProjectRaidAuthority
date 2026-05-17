@@ -12,6 +12,7 @@
 - Product overview: `../01_GameDesign/00_project_vision_gdd_lite.md`
 - Roadmap baseline: `00_6month_mvp_roadmap.md`
 - Tech/Ops baseline: `../03_TechOps/00_authoritative_server_direction.md`
+- FishNet network flow architecture: `../../../../../../docs/architecture/fishnet-network-flow-architecture.html`
 - Business/market baseline: `../04_BusinessMarket/00_market_business_validation.md`
 
 ## Lifecycle
@@ -63,7 +64,7 @@ Complete closeout required fields:
 |---|---|---|---|
 | Product vision / core loop | `Assets/00_ProjectRaidAuthority/Docs/00_Plan/01_GameDesign/00_project_vision_gdd_lite.md` | `design/gdd/game-concept.md` | Asset Docs를 원문 근거로 삼고 CCGS GDD에는 요약/참조를 작성한다. |
 | 6개월 roadmap / phase gates | `Assets/00_ProjectRaidAuthority/Docs/00_Plan/02_ProductPlan/00_6month_mvp_roadmap.md` | `production/stage.txt`, `production/sprint-status.yaml` | roadmap은 Asset Docs가 원문, CCGS production 파일은 현재 phase/week 운영 상태를 기록한다. |
-| Server authority / tech ops | `Assets/00_ProjectRaidAuthority/Docs/00_Plan/03_TechOps/00_authoritative_server_direction.md` | `docs/architecture/adr-*.md`, `docs/architecture/control-manifest.md`, `design/gdd/systems-index.md` | 기술 방향은 Asset Docs가 기준, ADR/control-manifest는 승인된 결정과 개발 규칙만 고정한다. |
+| Server authority / tech ops | `Assets/00_ProjectRaidAuthority/Docs/00_Plan/03_TechOps/00_authoritative_server_direction.md`, `docs/architecture/fishnet-network-flow-architecture.html` | `docs/architecture/adr-*.md`, `docs/architecture/control-manifest.md`, `design/gdd/systems-index.md` | 기술 방향은 Asset Docs가 기준, FishNet 흐름 HTML은 현재 제안 ADR/설명회 자료, ADR/control-manifest는 승인된 결정과 개발 규칙만 고정한다. |
 | Business / market validation | `Assets/00_ProjectRaidAuthority/Docs/00_Plan/04_BusinessMarket/00_market_business_validation.md` | master plan의 Business/PM Axis, 추후 PRD/market validation appendix | BM 구현은 MVP 제외로 유지하되 플랫폼/가격/서버비/외부시연/시장검증 hold criteria를 master plan에 반영한다. |
 | Weekly execution status | `Assets/00_ProjectRaidAuthority/Docs/01_InProgress/00_WeeklyProgress/*.md` | `production/sprint-status.yaml` | 주간 계획 본문은 Asset Docs에 작성하고 sprint-status는 상태/담당/판단/다음 gate만 요약한다. |
 | Completed decisions/archive | `Assets/00_ProjectRaidAuthority/Docs/02_Complete/**` | CCGS ADR/production 상태 파일의 후속 링크 | Complete 이동 시 완료일/결정 요약/후속 문서/폐기 또는 대체 여부를 반드시 남긴다. |
@@ -109,14 +110,43 @@ Complete closeout required fields:
 
 목표: FishNet dedicated server가 실제로 실행되고, 서버 기준으로 더미 엔티티 동기화가 가능해야 한다.
 
+구조 원칙:
+
+- 한 Unity/FishNet 프로젝트를 유지하되, 게임플레이 코드는 `Lobby`, `Match/Raid`, `Player`, `Skill/Loot` 같은 기능 도메인으로 나눈다.
+- 각 도메인은 `Client` / `Server` / `Shared` 책임을 분리한다.
+- `Client`는 입력·표시·요청, `Server`는 검증·상태 확정·로그, `Shared`는 enum/DTO/state id만 담당한다.
+- 이 원칙은 빌드 분리보다 먼저 책임 경계를 명확히 하기 위한 Phase 1 코드 배치 기준이다.
+
+네트워크 진입 원칙:
+
+- FishNet은 Transport, NetworkObject, SceneManager, ownership을 담당한다.
+- Photon식 Lobby/Matchmaking은 FishNet이 제공한다고 가정하지 않고 프로젝트 레벨에서 추상화한다.
+- 프로젝트는 `IMatchmakingService` / `MatchRequest` / `MatchAssignment`를 경계로 로비·방 선택·매칭을 분리한다.
+- 현재 서버가 하나뿐인 동안은 `SingleServerMatchmaker`가 고정 서버 주소와 개발용 room 정보를 반환한다.
+- 이후 Steam Lobby, PlayFab, Nakama, Unity Matchmaker, 직접 백엔드 구현체로 교체한다.
+
+씬/객체 원칙:
+
+- `OfflineBootstrap`은 부트스트랩·역할 판정·매칭 요청 단계다.
+- `MatchRoom`은 Match Room 단계다.
+- `Gameplay`는 실제 레이드/게임플레이 단계다.
+- `RoomPlayer`는 FishNet 내장 Lobby가 아니라 Match Room의 per-connection 임시 `NetworkObject`로 유지한다.
+- `RoomPlayer`는 Ready/선택/로드 상태까지만 담당한다.
+- 전투·HP·루팅·탈출·영속 상태는 `GamePlayer` 또는 서버 도메인 서비스가 확정한다.
+
 - [ ] FishNet dedicated server 실행 기준 확정.
 - [ ] 서버 Tick 20~30Hz 후보값 결정.
 - [ ] Snapshot 10~20Hz 후보값 결정.
 - [ ] Entity/Player/Raid/RaidEvent 최소 데이터 모델 확정.
+- [ ] 도메인별 `Client` / `Server` / `Shared` 코드 배치 기준 확정.
+- [ ] `IMatchmakingService`, `MatchRequest`, `MatchAssignment`, `SingleServerMatchmaker` 최소 인터페이스 설계.
+- [ ] `OfflineBootstrap → MatchAssignment → MatchRoom → Gameplay` 전환 흐름 검증.
+- [ ] `RoomPlayer`와 `GamePlayer`의 생명주기/책임 경계 검증.
 - [ ] 클라이언트 1~2개 접속 테스트 완료.
 - [ ] 더미 엔티티 서버 Tick 처리 완료.
 - [ ] 서버 기준 위치 동기화 검증 완료.
-- [ ] Phase 1 gate: 클라이언트가 서버에 접속하고 더미 엔티티가 동기화됨.
+- [ ] 반복 Play/Stop 시 활성 `AudioListener`가 1개만 유지되는지 검증.
+- [ ] Phase 1 gate: 클라이언트가 서버에 접속하고 더미/플레이어 엔티티가 서버 기준으로 동기화됨.
 
 ### Phase 2 — Month 2: Combat Core
 
@@ -194,6 +224,7 @@ Complete closeout required fields:
 | Loot duplication | 경제/레이드 결과 신뢰도 붕괴 | item lock + requestId + event log를 Phase 3 gate로 고정 | - [ ] 동시 루팅 중복 0건 테스트 |
 | Performance risk | 서버 비용/동기화 품질 악화 | Tick/Snapshot/AOI 후보값을 Phase 1~2에서 검증 | - [ ] Tick/Snapshot 테스트 결과 기록 |
 | CCGS workflow mismatch | gate/story/ADR 흐름 오판 | Week 1 adoption checkpoint 완료 전 story/sprint 구현 착수 금지 | - [ ] 최소 scaffold 완료 확인 |
+| FishNet Lobby/Room 용어 혼동 | Photon식 Lobby와 프로젝트 Match Room을 혼동해 책임이 섞임 | `IMatchmakingService`는 로비/매칭 경계, `RoomPlayer`는 Match Room 임시 객체로 문서와 코드에서 분리 | - [ ] Phase 1에서 SingleServerMatchmaker와 RoomPlayer/GamePlayer 경계 검증 |
 | BM/출시 판단 방치 | MVP 이후 외부 데모/운영비/가격 판단 지연 | Business/PM Axis를 milestone gate로 관리 | - [ ] Month 2/4/5 BM hold 검토 |
 
 ## 9. Acceptance Criteria
@@ -208,6 +239,7 @@ Complete closeout required fields:
 - [ ] Week 1 plan과 연결되는 다음 액션이 있다.
 - [ ] Source-of-Truth Mapping Table이 Asset Docs와 CCGS 표준 경로를 연결한다.
 - [ ] Business/PM Axis가 출시 플랫폼, 가격/BM hold, 서버 운영비, 포트폴리오/외부 데모, 시장 검증 milestones를 포함한다.
+- [ ] Phase 1이 `IMatchmakingService`/`SingleServerMatchmaker` 기반의 로비·매칭 추상화와 `RoomPlayer`/`GamePlayer` 책임 경계를 포함한다.
 
 ## 10. 다음 실행 연결
 
