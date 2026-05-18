@@ -58,18 +58,18 @@ Assets/00_ProjectRaidAuthority/01_Scripts/
 
 ## 2. 이동을 서버 권한 구조로 변경
 
-- [ ] `20_Player/Shared`에 이동 입력 payload와 서버 확정 상태 타입 배치
-- [ ] `20_Player/Client`에 클라이언트 입력 수집과 `ServerRpc` 요청 진입점 배치
-- [ ] `20_Player/Server`에 입력 clamp / 검증 / 위치·회전 확정 로직 배치
-- [ ] `GamePlayer`에서 클라이언트 직접 `transform.position` 변경 제거
-- [ ] 클라이언트는 이동 입력만 읽도록 변경
-- [ ] 이동 입력을 `ServerRpc`로 서버에 전송
-- [ ] 서버에서 입력값 clamp / 검증
-- [ ] 서버에서 위치와 회전 계산
-- [ ] 서버만 `transform.position`, `transform.rotation` 변경
-- [ ] `GamePlayer.prefab`의 `NetworkTransform`을 서버 권한 설정으로 변경
-- [ ] 서버 이동 적용 로그 추가
-- [ ] 클라이언트에서 서버 결과가 동기화되는지 확인
+- [x] `20_Player/Shared`에 이동 입력 payload와 서버 확정 상태 타입 배치 — 현재 스모크 범위에서는 `00_Network/00_FishNetNetworkFlow/Shared/GamePlayer.cs`의 공유 상태로 기능 등가 구현
+- [x] `20_Player/Client`에 클라이언트 입력 수집과 `ServerRpc` 요청 진입점 배치 — 현재 스모크 범위에서는 `00_Network/00_FishNetNetworkFlow/Client/GamePlayer.Client.cs`에 기능 등가 구현
+- [x] `20_Player/Server`에 입력 clamp / 검증 / 위치·회전 확정 로직 배치 — 현재 스모크 범위에서는 `00_Network/00_FishNetNetworkFlow/Server/GamePlayer.Server.cs`에 기능 등가 구현
+- [x] `GamePlayer`에서 클라이언트 직접 `transform.position` 변경 제거
+- [x] 클라이언트는 이동 입력만 읽도록 변경
+- [x] 이동 입력을 `ServerRpc`로 서버에 전송
+- [x] 서버에서 입력값 clamp / 검증
+- [x] 서버에서 위치와 회전 계산
+- [x] 서버만 `transform.position`, `transform.rotation` 변경
+- [x] `GamePlayer.prefab`의 `NetworkTransform`을 서버 권한 설정으로 변경
+- [x] 서버 이동 적용 로그 추가
+- [x] 클라이언트에서 서버 결과가 동기화되는지 확인
 
 ---
 
@@ -139,10 +139,38 @@ Assets/00_ProjectRaidAuthority/01_Scripts/
 
 ---
 
+## 7. 후속 판단 항목 — Prediction/Reconcile
+
+- [ ] 서버 권한 스모크 프로토타입 완료 후 Prediction/Reconcile 도입 여부를 판단한다.
+- [x] 현재 단계에서는 클라이언트 예측, rollback, reconcile buffer, tick alignment를 구현하지 않는다.
+- [ ] 도입 판단 기준은 이동/사격/피격 체감 지연, 서버 snapshot 보정 흔들림, latency 테스트 결과가 실제 문제로 확인되는 경우로 제한한다.
+- [x] 도입 시점은 서버 권한 이동, loot commit, 기본 전투 판정이 먼저 검증된 이후로 둔다.
+
+---
+
+## 진행 확인 메모 — 2026-05-19
+
+체크 기준: 현재 파일/코드/프리팹으로 확인 가능한 구현 완료 항목만 체크했다. `## 1. 현재 Network Flow 실행 확인`, `## 4. 서버 권한 검증 로그 정리`, `## 5. 실제 검증`은 실제 Host/Client 실행 로그나 수동 검증 증거가 필요하므로 이번 확인에서는 완료 처리하지 않았다.
+
+확인한 구현 근거:
+
+- `GamePlayer.Client.cs`: owner 입력 수집, 카메라 기준 이동 방향 계산, `ServerSetMovementInput(moveDirection, lookDirection)` 호출
+- `GamePlayer.Server.cs`: `[ServerRpc] ServerSetMovementInput`, `SanitizeDirection` 기반 clamp/검증, 서버 위치/회전 적용, 서버 이동/회전 로그
+- `GamePlayer.cs`: `IsServerStarted`일 때만 서버 이동 적용, `IsOwner`일 때 입력 전송
+- `GamePlayer.prefab`: `NetworkTransform`의 `_clientAuthoritative: 0`으로 서버 권한 설정
+
+아직 미구현/미검증으로 남긴 범위:
+
+- `30_Loot/*` 코드와 Loot Item prefab은 아직 없음
+- `LootCommitted`, `LootRejected`, `Duplicate LootRequest ignored` 로그는 아직 없음
+- 실제 Host/Client 실행 검증과 `prototypes/fishnet-authority-smoke/README.md` 완료 증거는 아직 없음
+
+---
+
 ## 가장 먼저 할 일
 
 ```text
-GamePlayer 이동을 서버 권한 구조로 변경
+서버 권한 Loot 스모크 추가
 ```
 
-현재 가장 중요한 남은 작업은 클라이언트 직접 이동을 제거하고, 클라이언트 입력 → 서버 검증 → 서버 위치 확정 → 클라이언트 표시 흐름으로 바꾸는 것이다.
+현재 가장 중요한 남은 작업은 테스트용 Loot Item을 만들고, 클라이언트 E 키 입력 → ServerRpc 요청 → 서버 거리/중복/requestId 검증 → LootCommitted 또는 LootRejected 로그 흐름을 구현하는 것이다.

@@ -588,21 +588,15 @@ public sealed class MatchAssignment
         </tr>
         <tr>
           <td><code>RoomPlayer</code></td>
-          <td>룸 단계의 소유자별 Ready 상태를 <code>SyncVar</code>로 보관하고 <code>ServerRpc</code>로 변경합니다.</td>
-          <td>Gameplay 씬 전환 후 영속 상태 저장소로 쓰면 안 됩니다.</td>
-          <td>Ready, 팀, 캐릭터 선택, 로드 완료를 담는 <code>MatchParticipant</code> 네트워크 표현으로 확장합니다.</td>
+          <td>룸 단계의 소유자별 Ready 상태를 <code>SyncVar</code>로 보관하고 <code>ServerRpc</code>로 변경하는 단일 FishNet adapter입니다.</td>
+          <td>Gameplay 씬 전환 후 영속 상태 저장소로 쓰면 안 되며, Ready 정책이 커지기 전까지 과분리하지 않습니다.</td>
+          <td>Ready, 팀, 캐릭터 선택, 로드 완료가 늘어나면 <code>RoomReadyState</code>/<code>MatchParticipant</code> 같은 순수 정책 객체를 추가합니다.</td>
         </tr>
         <tr>
           <td><code>GamePlayer</code></td>
-          <td>클라이언트 입력을 서버로 보내고 서버가 이동/회전을 적용하는 게임플레이 플레이어입니다.</td>
-          <td><code>NetworkTransform</code> prefab 설정이 서버 권한 의도와 일치하는지 검증이 필요합니다.</td>
-          <td><code>GameplayAuthorityService</code>와 연동해 이동, 전투, 상호작용 검증을 서버 중심으로 확장합니다.</td>
-        </tr>
-        <tr>
-          <td><code>NetworkFlowAudioListenerGuard</code></td>
-          <td>MPPM/씬 전환 중 AudioListener를 하나로 유지합니다.</td>
-          <td>Network Flow 보조 유틸리티입니다.</td>
-          <td>카메라/오디오 시스템이 확정되면 공통 presentation 계층으로 이동합니다.</td>
+          <td>클라이언트 입력, 서버 RPC, 서버 이동/회전 적용, 카메라 adapter를 한 파일에서 orchestration합니다.</td>
+          <td><code>NetworkTransform</code> prefab 설정 검증과 2클라이언트 스모크가 아직 필요합니다.</td>
+          <td><code>GamePlayerMovementRules</code>, <code>InputRateLimiter</code>처럼 순수 collaborator를 늘려 서버 권한 규칙을 테스트 가능하게 유지합니다.</td>
         </tr>
       </tbody>
     </table>
@@ -708,12 +702,13 @@ public sealed class MatchAssignment
     </div>
     <h3>권장 구현 순서</h3>
     <ol>
+      <li><code>docs/architecture/adr-0004-networkbehaviour-adapter-composition.md</code> 기준으로 FishNet/Unity 계약은 adapter 파일에 모으고 계산/정책은 순수 collaborator로 분리합니다.</li>
       <li>로비/매치메이킹 추상화 추가: <code>IMatchmakingService</code>, <code>MatchAssignment</code>, <code>SingleServerMatchmaker</code></li>
       <li>현재 이름과 설명 정리: <code>Room</code>이 프로젝트 Match Room임을 코드/문서에 명시</li>
       <li>GamePlayer RPC 이름은 <code>ServerSetMovementInput</code>로 유지</li>
       <li><code>NetworkTransform</code> 권한 설정 검증 및 수정</li>
       <li>RoomPlayer에 Ready 외 팀/캐릭터 선택 placeholder 설계</li>
-      <li>NetworkFlowController 책임 분리: 우선 <code>SceneFlow</code>와 <code>PlayerSpawn</code>부터 추출</li>
+      <li>NetworkFlowController 책임 분리: 우선 <code>SceneFlow</code>와 <code>PlayerSpawn</code>부터 추출하되, partial 분산보다 adapter/composition 경계를 우선 검토합니다.</li>
     </ol>
   </section>
 
@@ -722,10 +717,11 @@ public sealed class MatchAssignment
     <h3>로컬 코드 근거</h3>
     <ul>
       <li><code>Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Shared/FishNetMppmRoleBootstrapper.cs</code></li>
-      <li><code>Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Shared/FishNetNetworkFlowController.cs</code> + <code>Client/</code>, <code>Server/</code> partial 파일</li>
-      <li><code>Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Shared/RoomPlayer.cs</code> + <code>Client/RoomPlayer.Client.cs</code>, <code>Server/RoomPlayer.Server.cs</code></li>
-      <li><code>Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Shared/GamePlayer.cs</code> + <code>Client/GamePlayer.Client.cs</code>, <code>Server/GamePlayer.Server.cs</code></li>
-      <li><code>Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Client/NetworkFlowAudioListenerGuard.cs</code></li>
+      <li><code>Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Shared/FishNetNetworkFlowController.cs</code> + 현재 <code>Client/</code>, <code>Server/</code> partial 파일. 후속 책임 분리 시 ADR-0004 기준을 적용합니다.</li>
+      <li><code>Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Shared/RoomPlayer.cs</code> — Ready 흐름을 한 파일에서 보여주는 단일 adapter</li>
+      <li><code>Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Shared/GamePlayer.cs</code> — FishNet/Unity 계약을 모은 단일 adapter</li>
+      <li><code>Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow/Shared/GamePlayerMovementRules.cs</code>, <code>InputRateLimiter.cs</code> — Unity/FishNet 비의존 순수 collaborator</li>
+      <li><code>docs/architecture/adr-0004-networkbehaviour-adapter-composition.md</code></li>
       <li><code>Assets/10_FishNet/Runtime/Managing/Scened/SceneManager.cs</code></li>
       <li><code>Assets/10_FishNet/Runtime/Generated/Component/Utility/DefaultScene.cs</code></li>
     </ul>
@@ -739,7 +735,7 @@ public sealed class MatchAssignment
       <li><a href="https://fish-networking.gitbook.io/docs/guides/features/network-communication/synchronizing/syncvar">FishNet SyncVar 문서</a></li>
     </ul>
     <p class="footer">
-      작성일: 2026-05-17 · 상태: 제안 · 목적: 설명회 및 구현 전 아키텍처 합의
+      작성일: 2026-05-17 · 갱신: 2026-05-19 · 상태: ADR-0004 반영 · 목적: 설명회 및 구현 전 아키텍처 합의
     </p>
   </section>
 </main>

@@ -14,6 +14,7 @@ GDD, ADR, 통제 매니페스트, 앞으로 생성될 story가 서로 끊기지 
 | 추출 성공만 결과 저장 | `raid-flow-system.md` | ADR-0002, ADR-0003 | Extraction 필수 규칙 | extraction commit log |
 | 특성 선택 서버 검증 | `roguelike-run-build-system.md` | ADR-0002 | Server Core 필수 규칙 | trait choice event |
 | 운영/포트폴리오 증거 | `retention-operations-system.md` | ADR-0001 | QA 필수 규칙 | smoke checklist |
+| FishNet 컴포넌트 계약 가시성 | `authoritative-server-core.md` | ADR-0004 | Architecture 필수 규칙 | adapter/composition 정적 검증 |
 
 ## 현재 결론
 

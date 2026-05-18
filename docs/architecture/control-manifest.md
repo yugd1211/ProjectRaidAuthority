@@ -1,6 +1,6 @@
 # 통제 매니페스트 — ProjectRaidAuthority
 
-- **매니페스트 버전**: 2026-05-14-unity-fishnet-authority-v1
+- **매니페스트 버전**: 2026-05-19-unity-fishnet-authority-v2
 - **상태**: Pre-Production 기준 승인
 - **적용 범위**: 서버 권한 raid loop 구현 전반
 
@@ -15,6 +15,7 @@
 | Extraction | 성공 추출만 loot/profile commit을 허용한다. |
 | UI | 서버 event/snapshot을 표시하고 gameplay truth를 소유하지 않는다. |
 | QA | 모든 핵심 event는 재현 가능한 로그나 체크리스트 증거를 남긴다. |
+| Architecture | FishNet `NetworkBehaviour`는 단일 adapter가 계약을 소유하고, 계산/정책은 순수 C# collaborator로 분리한다. |
 
 ## 금지 규칙
 
@@ -22,9 +23,11 @@
 - 중복 요청 방지 없는 loot/result commit
 - 서버 권한 smoke prototype 전 콘텐츠 범위 확장
 - 구현 스토리에서 관련 GDD/ADR/통제 매니페스트 참조를 생략하는 것
+- Unity/FishNet 계약을 숨긴 채 `partial` 파일 분산으로 읽기 경계를 흐리는 것
 
 ## 가드레일
 
 - 새 gameplay story는 최소 하나의 GDD 요구사항과 하나의 ADR 또는 매니페스트 규칙을 참조한다.
 - FishNet API 확정 전에는 pseudo contract를 실제 코드 계약처럼 취급하지 않는다.
+- 새 `NetworkBehaviour` 설계는 `docs/architecture/adr-0004-networkbehaviour-adapter-composition.md`의 adapter/composition 경계를 먼저 검토한다.
 - 프로토타입 완료 증거 없이 `prototypes/*/README.md`를 만들지 않는다.
