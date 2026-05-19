@@ -14,6 +14,8 @@ namespace ProjectRaidAuthority.Networking
         [SerializeField] private NetworkManager networkManager;
         [SerializeField] private FishNet.Object.NetworkObject roomPlayerPrefab;
         [SerializeField] private FishNet.Object.NetworkObject gamePlayerPrefab;
+        [SerializeField] private FishNet.Object.NetworkObject lootItemPrefab;
+        [SerializeField] private Vector3 lootItemSpawnPosition = new(0f, 0.5f, 3f);
         [SerializeField] private string offlineBootstrapScene = "Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetNetworkFlow/OfflineBootstrap.unity";
         [SerializeField] private string matchRoomScene = "Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetNetworkFlow/MatchRoom.unity";
         [SerializeField] private string gameplayScene = "Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetNetworkFlow/Gameplay.unity";

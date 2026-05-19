@@ -76,7 +76,7 @@ namespace ProjectRaidAuthority.Networking
                 return false;
             }
 
-            RoomPlayer[] roomPlayers = FindObjectsByType<RoomPlayer>(FindObjectsInactive.Exclude);
+            RoomPlayer[] roomPlayers = FindObjectsByType<RoomPlayer>();
             if (roomPlayers.Length == 0)
             {
                 return false;
@@ -130,6 +130,15 @@ namespace ProjectRaidAuthority.Networking
                 NetworkObject player = manager.GetPooledInstantiated(gamePlayerPrefab, position, Quaternion.identity, true);
                 manager.ServerManager.Spawn(player, connection);
             }
+
+            SpawnSmokeLootItem(manager);
+        }
+
+        private void SpawnSmokeLootItem(NetworkManager manager)
+        {
+            NetworkObject lootItem = manager.GetPooledInstantiated(lootItemPrefab, lootItemSpawnPosition, Quaternion.identity, true);
+            manager.ServerManager.Spawn(lootItem);
+            Debug.Log($"[FishNet Authority Smoke] LootItem 스폰: itemId=loot-smoke-item-001, position={lootItemSpawnPosition}");
         }
 
         private static Vector3 GetSpawnPosition(int index)

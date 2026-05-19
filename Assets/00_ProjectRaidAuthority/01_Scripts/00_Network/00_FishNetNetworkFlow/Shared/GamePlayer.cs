@@ -9,7 +9,7 @@ namespace ProjectRaidAuthority.Networking
     /// Gameplay 씬 GamePlayer의 FishNet/Unity adapter입니다.
     /// 네트워크 계약은 이 파일에 모으고, 순수 계산/정책은 collaborator로 위임합니다.
     /// </summary>
-    public sealed class GamePlayer : NetworkBehaviour
+    public sealed partial class GamePlayer : NetworkBehaviour
     {
         #region Serialized refs/settings
 
@@ -111,6 +111,7 @@ namespace ProjectRaidAuthority.Networking
             if (IsOwner)
             {
                 SendOwnedMovementInput(Time.unscaledTime);
+                SendOwnedLootInput();
             }
         }
 
@@ -134,6 +135,7 @@ namespace ProjectRaidAuthority.Networking
             }
 
             GUI.Label(new Rect(16, 16, 760, 28), "Network Flow: WASD/화살표는 카메라 기준 이동, 캐릭터 시선은 항상 마우스 위치를 따라갑니다");
+            GUI.Label(new Rect(16, 44, 760, 28), "Loot Smoke: 가까운 LootItem 앞에서 E 키를 누르면 서버 권한 획득 요청을 보냅니다");
         }
 
         private void InitializeOwnerClientState()
@@ -248,7 +250,7 @@ namespace ProjectRaidAuthority.Networking
             serverLookDirection = sanitizedInput.LookDirection;
             hasServerLookDirection = sanitizedInput.HasLookDirection;
 
-            Debug.Log($"[FishNet Authority Smoke] 이동 입력 수신/검증: owner={OwnerId}, move={ToVector2(serverMoveDirection)}, look={ToVector2(serverLookDirection)}");
+            // Debug.Log($"[FishNet Authority Smoke] 이동 입력 수신/검증: owner={OwnerId}, move={ToVector2(serverMoveDirection)}, look={ToVector2(serverLookDirection)}");
         }
 
         [ServerRpc]
@@ -286,7 +288,7 @@ namespace ProjectRaidAuthority.Networking
             {
                 nextServerRotationLogTime = Time.unscaledTime + serverMoveLogInterval;
                 float yawDelta = Quaternion.Angle(transform.rotation, targetRotation);
-                Debug.Log($"[FishNet Authority Smoke] 서버 회전 적용: owner={OwnerId}, currentYaw={transform.eulerAngles.y:F1}, targetYaw={targetRotation.eulerAngles.y:F1}, yawDelta={yawDelta:F2}, look={ToVector2(serverLookDirection)}");
+                // Debug.Log($"[FishNet Authority Smoke] 서버 회전 적용: owner={OwnerId}, currentYaw={transform.eulerAngles.y:F1}, targetYaw={targetRotation.eulerAngles.y:F1}, yawDelta={yawDelta:F2}, look={ToVector2(serverLookDirection)}");
             }
         }
 
