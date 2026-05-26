@@ -2,7 +2,7 @@
 
 ## 현재 단계
 
-**사전 제작 / 프로토타입 준비**
+**사전 제작 / 서버 코어 스토리 준비**
 
 ## 근거
 
@@ -14,10 +14,10 @@
 
 ## 아직 완료가 아닌 것
 
-- 실제 FishNet 서버 권한 스모크 프로토타입은 아직 구현되지 않았다.
-- `prototypes/*/README.md` 완료 증거는 만들지 않았다.
-- epic/story/sprint plan은 프로토타입 검증 전까지 보류한다.
+- FishNet 서버 권한 스모크 프로토타입은 2026-05-26 수동 검증 완료로 기록되었다.
+- 완료 증거는 `prototypes/fishnet-authority-smoke/README.md`에 있다.
+- epic/story/sprint plan은 이제 프로토타입 증거를 바탕으로 작성할 수 있다.
 
 ## 다음 게이트
 
-실제 Unity/FishNet 서버 권한 스모크 프로토타입을 구현하고 서버 권한 증거를 남긴다.
+Tick/Snapshot/AOI 초기값 ADR을 작성하고 첫 server-core story/sprint 후보를 만든다.

@@ -2,9 +2,9 @@
 
 ## 상태
 
-**계획됨. 아직 구현되지 않음.**
+**Complete. 2026-05-26 수동 검증 완료.**
 
-이 문서는 프로토타입 계획이며 `/prototype 완료` 증거가 아니다. 실제 구현과 검증이 끝나기 전에는 `prototypes/fishnet-authority-smoke/README.md`를 만들지 않는다.
+이 문서는 프로토타입 계획에서 완료 기록으로 갱신되었다. 완료 증거는 `prototypes/fishnet-authority-smoke/README.md`에 보존한다.
 
 ## 목표
 
@@ -78,8 +78,8 @@ Client 표현 코드
 
 ## 완료 기준
 
-- [ ] 서버와 클라이언트가 분리 실행된다.
-- [ ] 클라이언트 직접 state write가 불가능하다.
-- [ ] 서버 확정 snapshot/event가 클라이언트에 표시된다.
-- [ ] 로그 또는 테스트 결과가 남는다.
-- [ ] 결과를 `prototypes/fishnet-authority-smoke/README.md`에 기록한다.
+- [x] 서버와 클라이언트가 분리 실행된다.
+- [x] 클라이언트 직접 state write가 불가능하다.
+- [x] 서버 확정 snapshot/event가 클라이언트에 표시된다.
+- [x] 로그 또는 테스트 결과가 남는다.
+- [x] 결과를 `prototypes/fishnet-authority-smoke/README.md`에 기록한다.

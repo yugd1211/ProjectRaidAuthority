@@ -1,8 +1,14 @@
-# FishNet 서버 권한 스모크 프로토타입 남은 할 일
+# FishNet 서버 권한 스모크 프로토타입 완료 체크리스트
+
+상태: Complete  
+완료일: 2026-05-26  
+결정 요약: FishNet 서버 권한 이동/loot 스모크와 loot 획득 후 클라이언트 표시 제거 동기화를 검증 완료했다.  
+후속 문서/작업: `prototypes/fishnet-authority-smoke/README.md`, 다음 단계는 Tick/Snapshot/AOI ADR과 첫 server-core story 작성이다.  
+폐기 또는 대체 여부: 완료 증거 문서로 대체하지 않고 검증 체크리스트 기록으로 보존한다.
 
 ## 목적
 
-현재 `00_FishNetNetworkFlow`은 룸/Ready/게임플레이 씬 전환과 플레이어 스폰까지 상당 부분 구현되어 있다. 남은 목표는 이 Network Flow를 **서버 권한 스모크 프로토타입**으로 검증하는 것이다.
+현재 `00_FishNetNetworkFlow`은 룸/Ready/게임플레이 씬 전환과 플레이어 스폰까지 상당 부분 구현되어 있다. 이 문서는 `00_FishNetNetworkFlow`를 **서버 권한 스모크 프로토타입**으로 검증한 완료 체크리스트다.
 
 핵심은 클라이언트가 결과를 직접 확정하지 않고, 서버가 입력을 검증한 뒤 위치/상태/전리품 결과를 확정한다는 것을 증명하는 것이다.
 
@@ -45,14 +51,14 @@ Assets/00_ProjectRaidAuthority/01_Scripts/
 
 ## 1. 현재 Network Flow 실행 확인
 
-- [ ] `OfflineBootstrap` 씬에서 Host 실행 확인
-- [ ] 로컬 Client 참가 확인
-- [ ] `MatchRoom` 씬 로드 확인
-- [ ] Room Player 스폰 확인
-- [ ] Ready 버튼 동작 확인
-- [ ] 모든 플레이어 Ready 후 `Gameplay` 씬 이동 확인
-- [ ] Game Player 스폰 확인
-- [ ] 현재 이동 동기화가 되는지 확인
+- [x] `OfflineBootstrap` 씬에서 Host 실행 확인
+- [x] 로컬 Client 참가 확인
+- [x] `MatchRoom` 씬 로드 확인
+- [x] Room Player 스폰 확인
+- [x] Ready 버튼 동작 확인
+- [x] 모든 플레이어 Ready 후 `Gameplay` 씬 이동 확인
+- [x] Game Player 스폰 확인
+- [x] 현재 이동 동기화가 되는지 확인
 
 ---
 
@@ -99,45 +105,45 @@ Assets/00_ProjectRaidAuthority/01_Scripts/
 
 ## 4. 서버 권한 검증 로그 정리
 
-- [ ] 서버 시작 로그 확인
-- [ ] 클라이언트 접속 로그 확인
-- [ ] Room Player 스폰 로그 확인
-- [ ] Game Player 스폰 로그 확인
-- [ ] 이동 입력 수신 로그 확인
-- [ ] 이동 입력 검증 로그 확인
-- [ ] 서버 위치 적용 로그 확인
-- [ ] LootRequest 수신 로그 확인
-- [ ] LootCommitted 로그 확인
-- [ ] LootRejected 로그 확인
-- [ ] Duplicate LootRequest 로그 확인
+- [x] 서버 시작 로그 확인
+- [x] 클라이언트 접속 로그 확인
+- [x] Room Player 스폰 로그 확인
+- [x] Game Player 스폰 로그 확인
+- [x] 이동 입력 수신 로그 확인
+- [x] 이동 입력 검증 로그 확인
+- [x] 서버 위치 적용 로그 확인
+- [x] LootRequest 수신 로그 확인
+- [x] LootCommitted 로그 확인
+- [x] LootRejected 로그 확인
+- [x] Duplicate LootRequest 로그 확인
 
 ---
 
 ## 5. 실제 검증
 
-- [ ] Host 1개 실행
-- [ ] Client 1개 이상 접속
-- [ ] Ready 후 게임플레이 씬 이동
-- [ ] Player 이동 확인
-- [ ] 이동이 서버 적용 결과로 동기화되는지 확인
-- [ ] Loot Item 근처에서 획득 요청
-- [ ] Loot 성공 확인
-- [ ] 같은 요청 중복 처리 확인
-- [ ] 이미 획득된 아이템 재획득 거절 확인
-- [ ] 서버 로그로 전체 흐름 추적 가능 확인
+- [x] Host 1개 실행
+- [x] Client 1개 이상 접속
+- [x] Ready 후 게임플레이 씬 이동
+- [x] Player 이동 확인
+- [x] 이동이 서버 적용 결과로 동기화되는지 확인
+- [x] Loot Item 근처에서 획득 요청
+- [x] Loot 성공 확인
+- [x] 같은 요청 중복 처리 확인
+- [x] 이미 획득된 아이템 재획득 거절 확인
+- [x] 서버 로그로 전체 흐름 추적 가능 확인
 
 ---
 
 ## 6. 완료 증거 문서 작성
 
-- [ ] `prototypes/fishnet-authority-smoke/` 디렉터리 생성
-- [ ] `prototypes/fishnet-authority-smoke/README.md` 작성
-- [ ] 실행한 씬 기록
-- [ ] 실행 방법 기록
-- [ ] 검증한 서버 권한 항목 기록
-- [ ] 성공 로그 샘플 기록
-- [ ] 남은 한계 기록
-- [ ] 다음 단계로 가져갈 결정 기록
+- [x] `prototypes/fishnet-authority-smoke/` 디렉터리 생성
+- [x] `prototypes/fishnet-authority-smoke/README.md` 작성
+- [x] 실행한 씬 기록
+- [x] 실행 방법 기록
+- [x] 검증한 서버 권한 항목 기록
+- [x] 성공 로그 샘플 기록
+- [x] 남은 한계 기록
+- [x] 다음 단계로 가져갈 결정 기록
 
 ---
 
@@ -152,7 +158,7 @@ Assets/00_ProjectRaidAuthority/01_Scripts/
 
 ## 진행 확인 메모 — 2026-05-19
 
-체크 기준: 현재 파일/코드/프리팹으로 확인 가능한 구현 완료 항목만 체크했다. `## 1. 현재 Network Flow 실행 확인`, `## 4. 서버 권한 검증 로그 정리`, `## 5. 실제 검증`은 실제 Host/Client 실행 로그나 수동 검증 증거가 필요하므로 이번 확인에서는 완료 처리하지 않았다.
+체크 기준: 현재 파일/코드/프리팹으로 확인 가능한 구현 완료 항목만 체크했다. `## 1. 현재 Network Flow 실행 확인`, `## 4. 서버 권한 검증 로그 정리`, `## 5. 실제 검증`은 2026-05-26 사용자 수동 검증 완료 보고를 기준으로 완료 처리했다.
 
 확인한 구현 근거:
 
@@ -161,18 +167,19 @@ Assets/00_ProjectRaidAuthority/01_Scripts/
 - `GamePlayer.cs`: `IsServerStarted`일 때만 서버 이동 적용, `IsOwner`일 때 입력 전송
 - `GamePlayer.prefab`: `NetworkTransform`의 `_clientAuthoritative: 0`으로 서버 권한 설정
 
-아직 미구현/미검증으로 남긴 범위:
+추가 완료 근거 — 2026-05-26:
 
-- `30_Loot/*` 코드와 Loot Item prefab은 아직 없음
-- `LootCommitted`, `LootRejected`, `Duplicate LootRequest ignored` 로그는 아직 없음
-- 실제 Host/Client 실행 검증과 `prototypes/fishnet-authority-smoke/README.md` 완료 증거는 아직 없음
+- `30_Loot/*` 코드와 `LootItem.prefab`이 존재한다.
+- `LootCommitted`, `LootRejected`, `Duplicate LootRequest ignored` 로그 경로가 존재한다.
+- Loot 획득 후 `LootItemState`가 `SyncVar`로 동기화되고, 클라이언트 presentation의 `Renderer`/`Collider`가 비활성화된다.
+- 실제 Host/Client 및 MPPM 수동 검증 완료 보고를 받았고, 완료 증거를 `prototypes/fishnet-authority-smoke/README.md`에 기록했다.
 
 ---
 
-## 가장 먼저 할 일
+## 다음으로 넘길 일
 
 ```text
-서버 권한 Loot 스모크 추가
+Tick/Snapshot/AOI 초기값 ADR 작성 → 첫 server-core story/sprint 후보 작성
 ```
 
-현재 가장 중요한 남은 작업은 테스트용 Loot Item을 만들고, 클라이언트 E 키 입력 → ServerRpc 요청 → 서버 거리/중복/requestId 검증 → LootCommitted 또는 LootRejected 로그 흐름을 구현하는 것이다.
+서버 권한 Loot 스모크는 완료 처리했다. 다음 작업은 스모크 결과를 바탕으로 네트워크 갱신 정책과 실제 server-core 개발 단위를 문서화하는 것이다.

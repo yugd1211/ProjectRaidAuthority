@@ -1,7 +1,7 @@
 version: 1
-last_updated: "2026-05-13"
+last_updated: "2026-05-26"
 current_phase: pre-production
-current_subphase: prototype-readiness
+current_subphase: server-core-story-readiness
 source_of_truth:
   asset_plan_root: "Assets/00_ProjectRaidAuthority/Docs/00_Plan"
   ccgs_concept: "design/gdd/game-concept.md"
@@ -17,14 +17,14 @@ status_summary:
   control_manifest_present: true
   accessibility_baseline_present: true
   ux_specs_present: true
-  prototype_built: false
+  prototype_built: true
   art_bible_present: true
   stories_present: false
   sprint_plan_present: false
 next_required_actions:
-  - build_fishnet_authority_smoke_prototype
+  - write_tick_snapshot_aoi_adr
+  - create_first_server_core_story
   - create_epics_after_prototype_evidence
-  - create_stories_after_epics
 notes:
   - "Current phase advanced to pre-production because concept, art, systems, architecture, accessibility, and UX baseline artifacts now exist."
-  - "Do not create prototype completion artifact under prototypes/*/README.md until a real prototype exists."
+  - "FishNet authority smoke prototype completion artifact exists at prototypes/fishnet-authority-smoke/README.md."
