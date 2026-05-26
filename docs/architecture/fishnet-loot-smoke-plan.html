@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ProjectRaidAuthority 서버 권한 Loot 스모크 플랜</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --bg-soft: #111827;
+      --panel: rgba(15, 23, 42, 0.92);
+      --panel-2: rgba(30, 41, 59, 0.78);
+      --line: rgba(148, 163, 184, 0.24);
+      --text: #e5e7eb;
+      --muted: #a7b0c0;
+      --blue: #60a5fa;
+      --cyan: #22d3ee;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --red: #fb7185;
+      --purple: #a78bfa;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(96, 165, 250, 0.34) 0, transparent 32rem),
+        radial-gradient(circle at 86% 10%, rgba(52, 211, 153, 0.18) 0, transparent 28rem),
+        linear-gradient(180deg, #020617 0%, var(--bg) 46%, #0f172a 100%);
+      line-height: 1.68;
+    }
+
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.36rem;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 0.35rem;
+      background: #020617;
+      color: #bfdbfe;
+      font-family: "JetBrains Mono", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem 2rem;
+    }
+    header h1 {
+      margin: 0.6rem 0 1rem;
+      max-width: 980px;
+      font-size: clamp(2.2rem, 4.7vw, 4.15rem);
+      line-height: 1.08;
+      letter-spacing: -0.055em;
+    }
+    header p.lead {
+      max-width: 940px;
+      margin: 0;
+      color: #dbeafe;
+      font-size: 1.08rem;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto 5rem;
+      padding: 0 2rem;
+    }
+
+    section {
+      margin: 1.25rem 0;
+      padding: 1.45rem;
+      border: 1px solid var(--line);
+      border-radius: 1.2rem;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.82));
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+    }
+
+    h2, h3, h4 { line-height: 1.25; }
+    h2 { margin: 0 0 1rem; font-size: 1.58rem; color: #f8fafc; letter-spacing: -0.02em; }
+    h3 { margin: 0.2rem 0 0.55rem; font-size: 1.06rem; color: #bfdbfe; }
+    h4 { margin: 0.2rem 0 0.45rem; color: #ddd6fe; }
+    p { margin-top: 0; }
+    ul, ol { padding-left: 1.35rem; }
+    li + li { margin-top: 0.25rem; }
+
+    .grid { display: grid; gap: 1rem; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    @media (max-width: 940px) {
+      header, main { padding-left: 1rem; padding-right: 1rem; }
+      .grid.two, .grid.three, .grid.four { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      padding: 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 0.95rem;
+      background: var(--panel-2);
+    }
+    .card.compact p:last-child, .card.compact ul:last-child, .card.compact ol:last-child { margin-bottom: 0; }
+
+    .tag-row { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.58rem;
+      border: 1px solid rgba(148, 163, 184, 0.26);
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.86);
+      color: #d1d5db;
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+    .tag.ok { border-color: rgba(52, 211, 153, 0.48); color: #bbf7d0; }
+    .tag.now { border-color: rgba(96, 165, 250, 0.5); color: #bfdbfe; }
+    .tag.warn { border-color: rgba(251, 191, 36, 0.5); color: #fde68a; }
+    .tag.stop { border-color: rgba(251, 113, 133, 0.5); color: #fecdd3; }
+    .tag.role { border-color: rgba(167, 139, 250, 0.5); color: #ddd6fe; }
+
+    .note, .okbox, .warnbox {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-radius: 0.6rem;
+      background: rgba(15, 23, 42, 0.72);
+    }
+    .note { border-left: 4px solid var(--blue); }
+    .okbox { border-left: 4px solid var(--green); }
+    .warnbox { border-left: 4px solid var(--amber); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      overflow: hidden;
+      border-radius: 0.8rem;
+    }
+    th, td {
+      padding: 0.75rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+      vertical-align: top;
+    }
+    th { text-align: left; color: #e0f2fe; background: rgba(30, 41, 59, 0.95); }
+    td { background: rgba(15, 23, 42, 0.5); }
+    tr:last-child td { border-bottom: 0; }
+
+    .toc ol { columns: 2; margin-bottom: 0; }
+    @media (max-width: 780px) { .toc ol { columns: 1; } }
+
+    .diagram {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 1rem;
+      background: #020617;
+    }
+    svg { max-width: 100%; height: auto; }
+    .svg-title { font: 700 15px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif; fill: #ffffff; }
+    .svg-text { font: 600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif; fill: #e5e7eb; }
+    .svg-small { font: 500 11.5px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif; fill: #cbd5e1; }
+    .box { rx: 14; ry: 14; stroke-width: 2; }
+    .arrow { stroke: #94a3b8; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+    .arrow-green { stroke: #34d399; }
+    .arrow-red { stroke: #fb7185; }
+    .dashed { stroke-dasharray: 7 7; }
+
+    .timeline {
+      counter-reset: step;
+      display: grid;
+      gap: 0.8rem;
+      padding: 0;
+      list-style: none;
+    }
+    .timeline li {
+      counter-increment: step;
+      position: relative;
+      padding: 0.85rem 1rem 0.85rem 3.2rem;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 0.9rem;
+      background: rgba(15, 23, 42, 0.6);
+    }
+    .timeline li::before {
+      content: counter(step);
+      position: absolute;
+      left: 1rem;
+      top: 0.82rem;
+      width: 1.55rem;
+      height: 1.55rem;
+      border-radius: 50%;
+      background: rgba(96, 165, 250, 0.22);
+      border: 1px solid rgba(96, 165, 250, 0.5);
+      color: #dbeafe;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    .file-list {
+      display: grid;
+      gap: 0.55rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .file-list li {
+      padding: 0.65rem 0.75rem;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: 0.7rem;
+      background: rgba(2, 6, 23, 0.52);
+    }
+    .muted { color: var(--muted); }
+    .footer { color: var(--muted); font-size: 0.92rem; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="tag-row">
+    <span class="tag now">기준: 현재 Git staged 변경사항</span>
+    <span class="tag ok">서버 권한 Loot 스모크 1차 플랜 정리</span>
+    <span class="tag warn">런타임 검증 로그는 별도 후속</span>
+  </div>
+  <h1>서버가 확정하는 Loot 흐름 한 장 정리</h1>
+  <p class="lead">
+    이 문서는 현재 스테이지에 올라간 <strong>FishNet 서버 권한 Loot 스모크</strong> 작업물을 설명회/리뷰용으로 정리한 HTML 문서입니다.
+    핵심은 클라이언트가 “먹었다”를 확정하지 않고, <strong>서버가 requestId, 거리, 아이템 상태를 검증한 뒤 owner와 상태를 확정</strong>한다는 점입니다.
+  </p>
+</header>
+
+<main>
+  <section class="toc">
+    <h2>문서 목차</h2>
+    <ol>
+      <li><a href="#adr">ADR 요약</a></li>
+      <li><a href="#one-line">한 줄 결론</a></li>
+      <li><a href="#roles">책임 분리</a></li>
+      <li><a href="#contracts">공유 계약 타입</a></li>
+      <li><a href="#sequence">Loot 요청 시퀀스</a></li>
+      <li><a href="#decision">서버 판정 다이어그램</a></li>
+      <li><a href="#files">파일별 구현 요약</a></li>
+      <li><a href="#logs">검증 로그와 체크 방법</a></li>
+      <li><a href="#limits">남은 검증/한계</a></li>
+    </ol>
+  </section>
+
+  <section id="adr">
+    <h2>1. ADR 요약</h2>
+    <div class="grid two">
+      <div class="card compact">
+        <h3>제목</h3>
+        <p>FishNet 서버 권한 Loot 스모크 1차 구현 플랜</p>
+        <h3>상태</h3>
+        <p><span class="tag now">제안/검증 중</span> 코드와 프리팹 wiring은 1차 구현 범위에 들어왔고, Unity Editor import 및 MPPM Host/Client 런타임 로그 확인은 후속 검증으로 남습니다.</p>
+        <h3>배경</h3>
+        <p>
+          ProjectRaidAuthority의 MVP 핵심 검증 순서는 <code>서버 권위 코어 → 전투 판정 → 인벤토리 무결성</code>입니다.
+          Loot는 인벤토리 무결성의 첫 관문이므로, 클라이언트 확정이 아닌 서버 확정 흐름을 먼저 스모크로 증명합니다.
+        </p>
+      </div>
+      <div class="card compact">
+        <h3>결정</h3>
+        <ul>
+          <li>클라이언트는 가까운 <code>LootItem</code> 후보를 찾고 <code>E</code> 입력을 <code>ServerRpc</code>로 보냅니다.</li>
+          <li>서버는 <code>requestId</code> 중복, itemId 유효성, 거리, 이미 획득 여부를 순서대로 검증합니다.</li>
+          <li>성공 시 서버만 <code>LootItem.State</code>와 <code>LootOwnerId</code>를 변경합니다.</li>
+          <li>성공/실패/중복은 로그 문자열로 확인 가능하게 남깁니다.</li>
+        </ul>
+        <h3>결과와 영향</h3>
+        <p>
+          현재 단계에서는 UI/인벤토리 저장소까지 확장하지 않고, <strong>“서버가 Loot 결과를 확정한다”</strong>는 최소 증거를 만들었습니다.
+          이후 전투 보상, 아이템 persistence, extraction 결과 저장으로 확장할 수 있습니다.
+        </p>
+      </div>
+    </div>
+    <div class="grid three">
+      <div class="card compact">
+        <h3>ADR 의존성</h3>
+        <ul>
+          <li>FishNet <code>NetworkObject</code>, <code>NetworkBehaviour</code>, <code>ServerRpc</code></li>
+          <li>Unity Input System <code>Keyboard.current.eKey</code></li>
+          <li>현재 <code>00_FishNetNetworkFlow</code> 씬 전환/스폰 구조</li>
+        </ul>
+      </div>
+      <div class="card compact">
+        <h3>엔진 호환성</h3>
+        <p>Unity/FishNet 단일 프로젝트 안에서 Client/Server/Shared 폴더를 나누는 책임 분리 방식입니다. 빌드 분리는 아직 목표가 아닙니다.</p>
+      </div>
+      <div class="card compact">
+        <h3>연결된 GDD 요구사항</h3>
+        <p>서버 권위, 전리품 무결성, 레이드 보상 확정 요구사항과 연결됩니다. 안정 ID 연결은 추후 <code>tr-registry.yaml</code> 반영 대상입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="one-line">
+    <h2>2. 한 줄 결론</h2>
+    <div class="okbox">
+      <strong>클라이언트는 Loot를 “요청”만 하고, 서버가 모든 검증을 통과한 경우에만 Loot를 “확정”합니다.</strong>
+    </div>
+    <div class="grid four">
+      <div class="card compact">
+        <h3>입력</h3>
+        <p><code>E</code> 키를 누르면 owner 클라이언트가 가까운 LootItem 후보를 찾습니다.</p>
+      </div>
+      <div class="card compact">
+        <h3>요청</h3>
+        <p><code>requestId</code>와 <code>itemId</code>를 <code>ServerRequestLoot</code>로 전송합니다.</p>
+      </div>
+      <div class="card compact">
+        <h3>검증</h3>
+        <p>서버가 중복, 유효성, 거리, 아이템 상태를 순서대로 확인합니다.</p>
+      </div>
+      <div class="card compact">
+        <h3>확정</h3>
+        <p>서버가 <code>ServerMarkLooted(OwnerId)</code>로 소유자를 기록합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="roles">
+    <h2>3. 책임 분리</h2>
+    <table>
+      <thead>
+        <tr><th>영역</th><th>현재 책임</th><th>절대 하지 않는 일</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag role">Client</span></td>
+          <td>Owner 입력 감지, 주변 LootItem 후보 검색, 요청 ID 생성, ServerRpc 호출</td>
+          <td>아이템 owner 확정, 상태 변경, 이미 획득 여부 최종 판정</td>
+        </tr>
+        <tr>
+          <td><span class="tag role">Server</span></td>
+          <td>요청 중복 처리, itemId/거리/상태 검증, Loot owner 확정, 성공/실패 로그 출력</td>
+          <td>클라이언트 UI 표현, 입력 수집</td>
+        </tr>
+        <tr>
+          <td><span class="tag role">Shared</span></td>
+          <td><code>LootRequest</code>, <code>LootResult</code>, <code>LootItemIdentity</code>, <code>LootRequestId</code>, <code>LootItemState</code> 같은 값 계약 제공</td>
+          <td>서버 판정 로직, 클라이언트 표현 로직</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note">
+      <strong>반지름이 둘로 나뉜 이유:</strong> 클라이언트 후보 검색 반경은 <code>2.25m</code>, 서버 수락 반경은 <code>2.5m</code>입니다.
+      클라이언트는 편의상 후보를 찾을 뿐이고, 서버가 약간의 허용치를 둔 최종 판정을 내립니다.
+    </div>
+  </section>
+
+  <section id="contracts">
+    <h2>4. 공유 계약 타입</h2>
+    <div class="grid three">
+      <div class="card compact">
+        <h3><code>LootItemIdentity</code></h3>
+        <p>전리품 prefab 인스턴스를 구분하는 문자열 값입니다. 비어 있으면 유효하지 않은 요청입니다.</p>
+      </div>
+      <div class="card compact">
+        <h3><code>LootRequestId</code></h3>
+        <p>같은 요청을 두 번 처리하지 않기 위한 요청 식별자입니다. 현재는 owner id, 증가 시퀀스, GUID를 조합합니다.</p>
+      </div>
+      <div class="card compact">
+        <h3><code>LootRequest</code></h3>
+        <p>클라이언트가 서버에 보내는 최소 요청 값입니다. <code>requestId</code>와 <code>itemId</code>가 모두 있어야 유효합니다.</p>
+      </div>
+      <div class="card compact">
+        <h3><code>LootItemState</code></h3>
+        <p><code>Available</code> 또는 <code>Looted</code>만 가진 최소 상태 enum입니다.</p>
+      </div>
+      <div class="card compact">
+        <h3><code>LootResult</code></h3>
+        <p>서버 판정 결과를 로그/검증에 일관되게 쓰기 위한 값입니다. 성공 여부, owner, 상태, 사유를 담습니다.</p>
+      </div>
+      <div class="card compact">
+        <h3><code>LootItem</code></h3>
+        <p>테스트용 NetworkBehaviour입니다. 서버 확정 상태인 <code>state</code>와 <code>ownerId</code>를 보관합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="sequence">
+    <h2>5. Loot 요청 시퀀스</h2>
+    <div class="diagram" role="img" aria-label="클라이언트 입력부터 서버 확정까지의 Loot 시퀀스 다이어그램">
+      <svg width="1120" height="540" viewBox="0 0 1120 540" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#94a3b8" />
+          </marker>
+          <linearGradient id="clientGrad" x1="0" x2="1">
+            <stop offset="0" stop-color="#1d4ed8" stop-opacity="0.92" />
+            <stop offset="1" stop-color="#0891b2" stop-opacity="0.82" />
+          </linearGradient>
+          <linearGradient id="serverGrad" x1="0" x2="1">
+            <stop offset="0" stop-color="#065f46" stop-opacity="0.92" />
+            <stop offset="1" stop-color="#0f766e" stop-opacity="0.84" />
+          </linearGradient>
+          <linearGradient id="itemGrad" x1="0" x2="1">
+            <stop offset="0" stop-color="#7c3aed" stop-opacity="0.92" />
+            <stop offset="1" stop-color="#4f46e5" stop-opacity="0.84" />
+          </linearGradient>
+        </defs>
+
+        <rect x="40" y="32" width="250" height="72" class="box" fill="url(#clientGrad)" stroke="#60a5fa" />
+        <text x="165" y="64" text-anchor="middle" class="svg-title">Owner Client</text>
+        <text x="165" y="86" text-anchor="middle" class="svg-small">입력 감지 / 후보 검색 / 요청 생성</text>
+
+        <rect x="435" y="32" width="250" height="72" class="box" fill="url(#serverGrad)" stroke="#34d399" />
+        <text x="560" y="64" text-anchor="middle" class="svg-title">Server GamePlayer</text>
+        <text x="560" y="86" text-anchor="middle" class="svg-small">ServerRpc / 검증 / 확정</text>
+
+        <rect x="830" y="32" width="250" height="72" class="box" fill="url(#itemGrad)" stroke="#a78bfa" />
+        <text x="955" y="64" text-anchor="middle" class="svg-title">LootItem</text>
+        <text x="955" y="86" text-anchor="middle" class="svg-small">itemId / state / ownerId 보관</text>
+
+        <line x1="165" y1="118" x2="165" y2="500" stroke="#334155" stroke-width="2" stroke-dasharray="7 7" />
+        <line x1="560" y1="118" x2="560" y2="500" stroke="#334155" stroke-width="2" stroke-dasharray="7 7" />
+        <line x1="955" y1="118" x2="955" y2="500" stroke="#334155" stroke-width="2" stroke-dasharray="7 7" />
+
+        <text x="62" y="154" class="svg-text">1. E 키 입력</text>
+        <rect x="52" y="166" width="226" height="58" rx="12" fill="#0f172a" stroke="#60a5fa" />
+        <text x="165" y="192" text-anchor="middle" class="svg-small">SendOwnedLootInput()</text>
+        <text x="165" y="211" text-anchor="middle" class="svg-small">owner만 실행</text>
+
+        <text x="62" y="258" class="svg-text">2. 주변 후보 검색</text>
+        <rect x="52" y="270" width="226" height="58" rx="12" fill="#0f172a" stroke="#60a5fa" />
+        <text x="165" y="296" text-anchor="middle" class="svg-small">FindNearestLootItemId(2.25m)</text>
+        <text x="165" y="315" text-anchor="middle" class="svg-small">Available 후보 중 가장 가까운 itemId</text>
+
+        <path d="M284 330 C360 330 382 168 435 168" class="arrow" />
+        <text x="348" y="153" class="svg-small">3. ServerRequestLoot(requestId, itemId)</text>
+
+        <rect x="447" y="154" width="226" height="74" rx="12" fill="#0f172a" stroke="#34d399" />
+        <text x="560" y="182" text-anchor="middle" class="svg-small">requestId 중복 확인</text>
+        <text x="560" y="201" text-anchor="middle" class="svg-small">itemId/requestId 유효성 확인</text>
+        <text x="560" y="220" text-anchor="middle" class="svg-small">handledLootRequestIds.Add()</text>
+
+        <path d="M685 282 C735 250 772 246 830 246" class="arrow" />
+        <text x="748" y="232" text-anchor="middle" class="svg-small">4. itemId로 LootItem 탐색</text>
+
+        <rect x="842" y="232" width="226" height="64" rx="12" fill="#0f172a" stroke="#a78bfa" />
+        <text x="955" y="258" text-anchor="middle" class="svg-small">ItemId.Equals(itemId)</text>
+        <text x="955" y="277" text-anchor="middle" class="svg-small">State == Available?</text>
+
+        <rect x="447" y="310" width="226" height="82" rx="12" fill="#0f172a" stroke="#34d399" />
+        <text x="560" y="338" text-anchor="middle" class="svg-small">거리 ≤ 2.5m 확인</text>
+        <text x="560" y="357" text-anchor="middle" class="svg-small">이미 Looted인지 확인</text>
+        <text x="560" y="376" text-anchor="middle" class="svg-small">통과 시 서버 확정</text>
+
+        <path d="M685 404 C740 424 780 424 830 404" class="arrow arrow-green" />
+        <text x="756" y="447" text-anchor="middle" class="svg-small">5. ServerMarkLooted(OwnerId)</text>
+
+        <rect x="842" y="382" width="226" height="76" rx="12" fill="#0f172a" stroke="#34d399" />
+        <text x="955" y="410" text-anchor="middle" class="svg-small">ownerId = serverOwnerId</text>
+        <text x="955" y="429" text-anchor="middle" class="svg-small">state = Looted</text>
+        <text x="955" y="448" text-anchor="middle" class="svg-small">클라이언트는 직접 변경하지 않음</text>
+
+        <path d="M435 456 C360 456 340 398 284 398" class="arrow arrow-green" />
+        <text x="356" y="425" text-anchor="middle" class="svg-small">6. LootCommitted 로그로 검증</text>
+
+        <rect x="52" y="382" width="226" height="58" rx="12" fill="#0f172a" stroke="#34d399" />
+        <text x="165" y="408" text-anchor="middle" class="svg-small">성공 로그 관찰</text>
+        <text x="165" y="427" text-anchor="middle" class="svg-small">owner / requestId / itemId / state</text>
+      </svg>
+    </div>
+    <ol class="timeline">
+      <li><strong>Gameplay 진입 후 서버가 LootItem을 스폰합니다.</strong> <code>SpawnSmokeLootItem</code>이 <code>lootItemPrefab</code>을 <code>(0, 0.5, 3)</code> 위치에 스폰합니다.</li>
+      <li><strong>Owner 클라이언트가 E 키를 누릅니다.</strong> <code>SendOwnedLootInput</code>은 owner의 로컬 입력에서만 실행됩니다.</li>
+      <li><strong>클라이언트가 가장 가까운 사용 가능 아이템 후보를 찾습니다.</strong> 이 후보 선택은 편의 기능일 뿐 최종 판정이 아닙니다.</li>
+      <li><strong>서버가 ServerRpc를 받습니다.</strong> 문자열로 온 값을 <code>LootRequest</code> 계약으로 감싸고 검증을 시작합니다.</li>
+      <li><strong>서버가 통과/거절/중복을 결정합니다.</strong> 성공만 <code>ServerMarkLooted</code>로 상태를 바꿉니다.</li>
+    </ol>
+  </section>
+
+  <section id="decision">
+    <h2>6. 서버 판정 다이어그램</h2>
+    <div class="diagram" role="img" aria-label="Loot 요청의 서버 판정 흐름">
+      <svg width="1120" height="620" viewBox="0 0 1120 620" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrow2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#94a3b8" />
+          </marker>
+          <style>
+            .a2 { stroke: #94a3b8; stroke-width: 2.3; fill: none; marker-end: url(#arrow2); }
+            .yes { stroke: #34d399; }
+            .no { stroke: #fb7185; }
+          </style>
+        </defs>
+
+        <rect x="420" y="30" width="280" height="62" rx="16" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2" />
+        <text x="560" y="57" text-anchor="middle" class="svg-title">ServerRequestLoot 수신</text>
+        <text x="560" y="78" text-anchor="middle" class="svg-small">requestIdValue + itemIdValue</text>
+
+        <path d="M560 92 L560 126" class="a2" />
+        <rect x="420" y="126" width="280" height="62" rx="16" fill="#312e81" stroke="#a78bfa" stroke-width="2" />
+        <text x="560" y="153" text-anchor="middle" class="svg-title">이미 처리한 requestId?</text>
+        <text x="560" y="174" text-anchor="middle" class="svg-small">handledLootRequestIds.Contains()</text>
+
+        <path d="M420 157 L260 157 L260 492" class="a2 no" />
+        <text x="326" y="146" class="svg-small">예</text>
+        <rect x="96" y="472" width="330" height="74" rx="16" fill="#3f1d2b" stroke="#fb7185" stroke-width="2" />
+        <text x="261" y="502" text-anchor="middle" class="svg-title">Duplicate LootRequest ignored</text>
+        <text x="261" y="525" text-anchor="middle" class="svg-small">상태 변경 없이 중복 요청 무시</text>
+
+        <path d="M560 188 L560 226" class="a2 yes" />
+        <text x="575" y="213" class="svg-small">아니오</text>
+        <rect x="420" y="226" width="280" height="62" rx="16" fill="#312e81" stroke="#a78bfa" stroke-width="2" />
+        <text x="560" y="253" text-anchor="middle" class="svg-title">요청 값이 유효한가?</text>
+        <text x="560" y="274" text-anchor="middle" class="svg-small">requestId와 itemId가 모두 비어 있지 않음</text>
+
+        <path d="M700 257 L850 257 L850 492" class="a2 no" />
+        <text x="776" y="246" class="svg-small">아니오</text>
+        <rect x="716" y="472" width="330" height="74" rx="16" fill="#3f1d2b" stroke="#fb7185" stroke-width="2" />
+        <text x="881" y="502" text-anchor="middle" class="svg-title">LootRejected</text>
+        <text x="881" y="525" text-anchor="middle" class="svg-small">Invalid / not found / out of range / already looted</text>
+
+        <path d="M560 288 L560 326" class="a2 yes" />
+        <rect x="420" y="326" width="280" height="62" rx="16" fill="#064e3b" stroke="#34d399" stroke-width="2" />
+        <text x="560" y="353" text-anchor="middle" class="svg-title">아이템을 찾았는가?</text>
+        <text x="560" y="374" text-anchor="middle" class="svg-small">FindObjectsByType&lt;LootItem&gt; + ItemId.Equals</text>
+
+        <path d="M700 357 L850 357 L850 472" class="a2 no" />
+        <text x="776" y="346" class="svg-small">아니오</text>
+
+        <path d="M560 388 L560 426" class="a2 yes" />
+        <rect x="420" y="426" width="280" height="62" rx="16" fill="#064e3b" stroke="#34d399" stroke-width="2" />
+        <text x="560" y="453" text-anchor="middle" class="svg-title">거리와 상태가 통과했는가?</text>
+        <text x="560" y="474" text-anchor="middle" class="svg-small">거리 ≤ 2.5m, State == Available</text>
+
+        <path d="M700 457 L716 492" class="a2 no" />
+        <text x="710" y="444" class="svg-small">아니오</text>
+
+        <path d="M560 488 L560 528" class="a2 yes" />
+        <rect x="420" y="528" width="280" height="62" rx="16" fill="#064e3b" stroke="#34d399" stroke-width="2" />
+        <text x="560" y="556" text-anchor="middle" class="svg-title">LootCommitted</text>
+        <text x="560" y="578" text-anchor="middle" class="svg-small">state=Looted, ownerId=OwnerId</text>
+      </svg>
+    </div>
+    <div class="warnbox">
+      <strong>중복 요청은 실패가 아니라 무시입니다.</strong>
+      같은 <code>requestId</code>가 다시 들어오면 서버는 상태를 바꾸지 않고 <code>Duplicate LootRequest ignored</code> 로그만 남깁니다.
+      이미 다른 요청으로 획득된 아이템을 다시 먹으려는 경우는 <code>LootRejected</code>입니다.
+    </div>
+  </section>
+
+  <section id="files">
+    <h2>7. 파일별 구현 요약</h2>
+    <div class="grid two">
+      <div class="card compact">
+        <h3>새 Loot 도메인 파일</h3>
+        <ul class="file-list">
+          <li><code>30_Loot/Client/GamePlayer.LootClient.cs</code><br><span class="muted">E 키 입력, 후보 검색, requestId 생성, 서버 요청 전송</span></li>
+          <li><code>30_Loot/Server/GamePlayer.LootServer.cs</code><br><span class="muted">중복 방지 HashSet, 거리/상태 검증, commit/reject 로그</span></li>
+          <li><code>30_Loot/Shared/LootItem.cs</code><br><span class="muted">NetworkObject에 붙는 서버 확정 상태 보관 컴포넌트</span></li>
+          <li><code>30_Loot/Shared/LootRequest*.cs</code>, <code>LootResult.cs</code>, <code>LootItemIdentity.cs</code>, <code>LootItemState.cs</code><br><span class="muted">서버/클라이언트가 함께 이해하는 최소 값 계약</span></li>
+        </ul>
+      </div>
+      <div class="card compact">
+        <h3>기존 네트워크 플로우 변경</h3>
+        <ul class="file-list">
+          <li><code>Shared/GamePlayer.cs</code><br><span class="muted"><code>partial</code>로 분리 가능하게 변경, owner Update에서 <code>SendOwnedLootInput()</code> 호출, OnGUI 안내 추가</span></li>
+          <li><code>Shared/FishNetNetworkFlowController.cs</code><br><span class="muted"><code>lootItemPrefab</code>과 <code>lootItemSpawnPosition</code> serialized field 추가</span></li>
+          <li><code>Server/FishNetNetworkFlowController.Server.cs</code><br><span class="muted">Gameplay 플레이어 스폰 후 <code>SpawnSmokeLootItem</code> 호출</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="note">
+      현재 HTML 문서는 <strong>Git staged diff</strong>에 올라온 코드 변경을 기준으로 작성했습니다. 작업 트리에는 prefab/meta/scene 등 별도 미스테이지 변경도 존재할 수 있으므로 커밋 전에는 staged 범위를 다시 확인해야 합니다.
+    </div>
+  </section>
+
+  <section id="logs">
+    <h2>8. 검증 로그와 체크 방법</h2>
+    <div class="grid three">
+      <div class="card compact">
+        <h3>성공 로그</h3>
+        <p><code>[FishNet Authority Smoke] LootCommitted</code></p>
+        <p class="muted">owner, requestId, itemId, state가 함께 출력되면 서버 확정 경로를 탄 것입니다.</p>
+      </div>
+      <div class="card compact">
+        <h3>실패 로그</h3>
+        <p><code>[FishNet Authority Smoke] LootRejected</code></p>
+        <p class="muted">Invalid, not found, out of range, already looted 사유를 확인합니다.</p>
+      </div>
+      <div class="card compact">
+        <h3>중복 로그</h3>
+        <p><code>[FishNet Authority Smoke] Duplicate LootRequest ignored</code></p>
+        <p class="muted">같은 requestId가 재전송되어도 상태가 다시 바뀌지 않아야 합니다.</p>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>확인 단계</th><th>기대 결과</th><th>이유</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Host/Server 시작 후 Gameplay 진입</td>
+          <td><code>LootItem 스폰</code> 로그와 아이템 NetworkObject 존재</td>
+          <td>서버가 테스트용 아이템을 소유한 상태로 시작해야 함</td>
+        </tr>
+        <tr>
+          <td>LootItem 근처에서 owner 클라이언트가 E 입력</td>
+          <td><code>LootCommitted</code> 로그</td>
+          <td>클라이언트 요청 → 서버 검증 → 서버 확정 경로 확인</td>
+        </tr>
+        <tr>
+          <td>멀리 떨어져 E 입력 또는 잘못된 itemId 요청</td>
+          <td><code>LootRejected</code> 로그</td>
+          <td>서버가 클라이언트 요청을 무조건 믿지 않는지 확인</td>
+        </tr>
+        <tr>
+          <td>이미 Looted 상태인 아이템 재요청</td>
+          <td><code>LootRejected</code> with already looted</td>
+          <td>한 아이템의 owner가 중복 확정되지 않아야 함</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="limits">
+    <h2>9. 남은 검증/한계</h2>
+    <div class="grid two">
+      <div class="card compact">
+        <h3>아직 후속 검증이 필요한 것</h3>
+        <ul>
+          <li>Unity Editor import 후 compile error가 없는지 확인</li>
+          <li>MPPM Host 1개 + Client 1개 이상으로 실제 Loot 성공 로그 확인</li>
+          <li>중복 요청과 이미 획득된 아이템 재요청 시나리오를 런타임에서 재현</li>
+          <li>prefab이 FishNet spawnable/prefab 참조에 올바르게 연결되었는지 확인</li>
+        </ul>
+      </div>
+      <div class="card compact">
+        <h3>의도적으로 하지 않은 것</h3>
+        <ul>
+          <li>인벤토리 저장, 보상 persistence, 추출 결과 저장</li>
+          <li>Loot UI/피드백 완성</li>
+          <li>클라이언트 prediction/reconcile</li>
+          <li>복수 아이템 테이블, 드랍 확률, 보상 밸런싱</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer">
+      작성 기준일: 2026-05-19 · 기준 산출물: 현재 Git staged Loot 스모크 1차 구현 · 문서 목적: 설명/리뷰/검증 체크리스트용 HTML 정리
+    </div>
+  </section>
+</main>
+</body>
+</html>

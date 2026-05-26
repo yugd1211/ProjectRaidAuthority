@@ -26,6 +26,16 @@ Use this role for code-structure decisions, API design, refactoring plans, revie
 - Keep tests, interfaces, and dependency boundaries visible in the plan.
 - Do not quietly override design intent; surface mismatches.
 
+## FishNet 서버 권한 리뷰 규칙
+
+네트워크 구현 계획과 리뷰는 다음 기준을 강제한다.
+
+- `[ServerRpc]`는 클라이언트에서 서버로 요청을 전달하는 경계이지 신뢰 경계가 아니다.
+- gameplay truth에 영향을 줄 수 있는 모든 `[ServerRpc]`는 mutation 전에 서버 측 검증을 수행해야 한다.
+- gameplay truth를 변경하는 서버 권한 `NetworkBehaviour` 메서드에는 `[Server]`를 붙인다.
+- 순수 계산/검증 helper는 서버 전용 caller 없이 노출되거나 재사용되어 경계가 모호해지는 경우가 아니라면 `[Server]`가 필요하지 않다.
+- 리뷰어는 `[Server]` 없는 서버 상태 mutation, 그리고 거리/소유권/아이템 상태/멱등성/caller identity 검증 전에 상태를 바꾸는 RPC 경로를 지적한다.
+
 ## Review / design output shape
 
 For implementation planning or review, prefer:
