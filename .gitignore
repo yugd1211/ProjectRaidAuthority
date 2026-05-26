@@ -192,4 +192,9 @@ $RECYCLE.BIN/
 **/.idea
 **/Resources
 **/.vsconfig
+
+
 **/Assets/10_FishNet
+**/Assets/Synty
+Assets/DownloadCache/
+Assets/DownloadCache.meta

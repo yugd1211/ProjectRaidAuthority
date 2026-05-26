@@ -6,15 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetSample/FishNetOffline.unity
+    path: Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetNetworkFlow/OfflineBootstrap.unity
     guid: a0000000000000000000000000000201
   - enabled: 1
-    path: Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetSample/FishNetGameRoom.unity
+    path: Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetNetworkFlow/MatchRoom.unity
     guid: a0000000000000000000000000000202
   - enabled: 1
-    path: Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetSample/FishNetGamePlay.unity
+    path: Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetNetworkFlow/Gameplay.unity
     guid: a0000000000000000000000000000203
-  - enabled: 1
+  - enabled: 0
     path: Assets/00_ProjectRaidAuthority/00_Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
