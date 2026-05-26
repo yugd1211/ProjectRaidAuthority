@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 66434369}
   - component: {fileID: 66434371}
   m_Layer: 0
-  m_Name: OfflineDirectionalLight
+  m_Name: DirectionalLight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -215,7 +215,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1908255053}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &66434371
 MonoBehaviour:
@@ -258,7 +258,7 @@ GameObject:
   - component: {fileID: 143299493}
   - component: {fileID: 143299492}
   m_Layer: 0
-  m_Name: OfflineTitleText
+  m_Name: TitleText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -337,7 +337,7 @@ GameObject:
   - component: {fileID: 316738193}
   - component: {fileID: 316738192}
   m_Layer: 0
-  m_Name: OfflineEventSystem
+  m_Name: EventSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -397,12 +397,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 316738191}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1908255053}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &333302952
 GameObject:
@@ -416,7 +416,7 @@ GameObject:
   - component: {fileID: 333302955}
   - component: {fileID: 333302954}
   m_Layer: 0
-  m_Name: OfflineMatchmakingHintText
+  m_Name: MatchmakingHintText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -497,7 +497,7 @@ GameObject:
   - component: {fileID: 386011743}
   - component: {fileID: 386011745}
   m_Layer: 0
-  m_Name: OfflineCamera
+  m_Name: Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -562,12 +562,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 386011741}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.104528464, y: 0, z: 0, w: 0.9945219}
+  m_LocalRotation: {x: 0.104528464, y: -0, z: -0, w: 0.9945219}
   m_LocalPosition: {x: 0, y: 2.5, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1908255053}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &386011745
 MonoBehaviour:
@@ -625,7 +625,7 @@ GameObject:
   - component: {fileID: 654732474}
   - component: {fileID: 654732473}
   m_Layer: 0
-  m_Name: OfflineFlowSubtitleText
+  m_Name: FlowSubtitleText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -705,7 +705,7 @@ GameObject:
   - component: {fileID: 712208453}
   - component: {fileID: 712208452}
   m_Layer: 0
-  m_Name: OfflineHudCanvas
+  m_Name: HudCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -797,6 +797,40 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &1908255052
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1908255053}
+  m_Layer: 0
+  m_Name: System
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1908255053
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1908255052}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 386011744}
+  - {fileID: 66434370}
+  - {fileID: 316738194}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1938325637
 GameObject:
   m_ObjectHideFlags: 0
@@ -832,6 +866,8 @@ MonoBehaviour:
   networkManager: {fileID: 1938325639}
   roomPlayerPrefab: {fileID: 4246251107968477568, guid: a0000000000000000000000000000301, type: 3}
   gamePlayerPrefab: {fileID: 1193564553359391526, guid: a0000000000000000000000000000302, type: 3}
+  lootItemPrefab: {fileID: 1140000000000400, guid: a0000000000000000000000000000303, type: 3}
+  lootItemSpawnPosition: {x: 0, y: 0.5, z: 3}
   offlineBootstrapScene: Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetNetworkFlow/OfflineBootstrap.unity
   matchRoomScene: Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetNetworkFlow/MatchRoom.unity
   gameplayScene: Assets/00_ProjectRaidAuthority/00_Scenes/00_FishNetNetworkFlow/Gameplay.unity
@@ -912,8 +948,6 @@ MonoBehaviour:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 386011744}
-  - {fileID: 66434370}
+  - {fileID: 1908255053}
   - {fileID: 712208455}
-  - {fileID: 316738194}
   - {fileID: 1938325641}

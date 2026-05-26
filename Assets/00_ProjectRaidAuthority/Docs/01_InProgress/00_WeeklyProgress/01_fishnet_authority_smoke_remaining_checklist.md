@@ -75,23 +75,25 @@ Assets/00_ProjectRaidAuthority/01_Scripts/
 
 ## 3. 서버 권한 Loot 스모크 추가
 
-- [ ] `30_Loot/Shared`에 `LootRequest`, `LootResult`, item id/state 타입 배치
-- [ ] `30_Loot/Client`에 획득 입력과 요청 전송 코드 배치
-- [ ] `30_Loot/Server`에 거리 검증, 소유권 확정, `requestId` 멱등 처리 배치
-- [ ] 테스트용 Loot Item 오브젝트 또는 prefab 생성
-- [ ] Loot Item에 `NetworkObject` 추가
-- [ ] Loot Item에 `itemId` 추가
-- [ ] Loot Item에 `looted / ownerId` 상태 추가
-- [ ] 플레이어가 `E` 키로 loot 요청 보내기
-- [ ] loot 요청을 `ServerRpc`로 서버에 전송
-- [ ] 요청마다 `requestId` 포함
-- [ ] 서버에서 플레이어와 아이템 거리 확인
-- [ ] 서버에서 이미 획득된 아이템인지 확인
-- [ ] 서버에서 item owner 확정
-- [ ] 같은 `requestId` 중복 요청 시 중복 처리 방지
-- [ ] 성공 시 `LootCommitted` 로그 출력
-- [ ] 실패 시 `LootRejected` 로그 출력
-- [ ] 중복 요청 시 `Duplicate LootRequest ignored` 로그 출력
+- [x] `30_Loot/Shared`에 `LootRequest`, `LootResult`, item id/state 타입 배치
+- [x] `30_Loot/Client`에 획득 입력과 요청 전송 코드 배치
+- [x] `30_Loot/Server`에 거리 검증, 소유권 확정, `requestId` 멱등 처리 배치
+- [x] 테스트용 Loot Item 오브젝트 또는 prefab 생성
+- [x] Loot Item에 `NetworkObject` 추가
+- [x] Loot Item에 `itemId` 추가
+- [x] Loot Item에 `looted / ownerId` 상태 추가
+
+> 진행 메모(2026-05-19): `30_Loot/Shared`, `30_Loot/Client`, `30_Loot/Server`, `LootItem.prefab`, FishNet spawnable 등록, 서버 스폰 wiring을 정적 구현했다. Roslyn 컴파일과 YAML 참조 검증은 통과했으며, Unity Editor import / MPPM 런타임 로그 확인은 4번 검증 로그 정리 단계에 남긴다.
+- [x] 플레이어가 `E` 키로 loot 요청 보내기
+- [x] loot 요청을 `ServerRpc`로 서버에 전송
+- [x] 요청마다 `requestId` 포함
+- [x] 서버에서 플레이어와 아이템 거리 확인
+- [x] 서버에서 이미 획득된 아이템인지 확인
+- [x] 서버에서 item owner 확정
+- [x] 같은 `requestId` 중복 요청 시 중복 처리 방지
+- [x] 성공 시 `LootCommitted` 로그 출력
+- [x] 실패 시 `LootRejected` 로그 출력
+- [x] 중복 요청 시 `Duplicate LootRequest ignored` 로그 출력
 
 ---
 

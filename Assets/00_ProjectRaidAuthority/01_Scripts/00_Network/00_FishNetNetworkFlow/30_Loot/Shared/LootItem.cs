@@ -1,4 +1,5 @@
 using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using UnityEngine;
 
 namespace ProjectRaidAuthority.Networking
@@ -13,9 +14,29 @@ namespace ProjectRaidAuthority.Networking
         [SerializeField] private string itemId = "loot-smoke-item-001";
         [SerializeField] private string displayName = "Smoke Loot Item";
 
-        [Header("Server-owned State")]
-        [SerializeField] private LootItemState state = LootItemState.Available;
-        [SerializeField] private int ownerId = -1;
+        private readonly SyncVar<LootItemState> state = new(LootItemState.Available);
+        private readonly SyncVar<int> ownerId = new(-1);
+
+        private Renderer[] presentationRenderers = System.Array.Empty<Renderer>();
+        private Collider[] presentationColliders = System.Array.Empty<Collider>();
+
+        private void Awake()
+        {
+            state.OnChange += OnLootStateChanged;
+            presentationRenderers = GetComponentsInChildren<Renderer>(true);
+            presentationColliders = GetComponentsInChildren<Collider>(true);
+        }
+
+        private void OnDestroy()
+        {
+            state.OnChange -= OnLootStateChanged;
+        }
+
+        public override void OnStartClient()
+        {
+            base.OnStartClient();
+            ApplyLootPresentationState(state.Value);
+        }
 
         /// <summary>전리품 인스턴스 식별자입니다. 소유권 확정에는 사용하지 않습니다.</summary>
         public LootItemIdentity ItemId => new(itemId);
@@ -24,13 +45,13 @@ namespace ProjectRaidAuthority.Networking
         public string DisplayName => displayName;
 
         /// <summary>현재 전리품 상태입니다. 클라이언트가 이 값으로 소유권을 확정하지 않습니다.</summary>
-        public LootItemState State => state;
+        public LootItemState State => state.Value;
 
         /// <summary>서버가 확정한 소유자 connection id입니다. 미획득 상태에서는 -1입니다.</summary>
-        public int LootOwnerId => ownerId;
+        public int LootOwnerId => ownerId.Value;
 
         /// <summary>아직 획득되지 않은 아이템인지 반환합니다.</summary>
-        public bool IsAvailable => state == LootItemState.Available;
+        public bool IsAvailable => state.Value == LootItemState.Available;
 
         /// <summary>
         /// 서버 측 스모크/후속 RPC 구현에서만 호출할 소유권 확정 진입점입니다.
@@ -39,13 +60,37 @@ namespace ProjectRaidAuthority.Networking
         [Server]
         public void ServerMarkLooted(int serverOwnerId)
         {
-            if (state == LootItemState.Looted)
+            if (state.Value == LootItemState.Looted)
             {
                 return;
             }
 
-            ownerId = serverOwnerId;
-            state = LootItemState.Looted;
+            ownerId.Value = serverOwnerId;
+            state.Value = LootItemState.Looted;
+        }
+
+        private void OnLootStateChanged(LootItemState previous, LootItemState next, bool asServer)
+        {
+            ApplyLootPresentationState(next);
+        }
+
+        /// <summary>
+        /// 획득된 전리품을 화면과 상호작용 후보에서만 제거합니다.
+        /// 루트 GameObject, NetworkObject, LootItem은 유지해 서버의 already-looted 판정 근거를 보존합니다.
+        /// </summary>
+        private void ApplyLootPresentationState(LootItemState next)
+        {
+            bool shouldShow = next == LootItemState.Available;
+
+            foreach (Renderer presentationRenderer in presentationRenderers)
+            {
+                presentationRenderer.enabled = shouldShow;
+            }
+
+            foreach (Collider presentationCollider in presentationColliders)
+            {
+                presentationCollider.enabled = shouldShow;
+            }
         }
     }
 }
