@@ -31,10 +31,19 @@ namespace ProjectRaidAuthority.Networking
 
         private bool gameplayLoadRequested;
 
+        /// <summary>현재 FishNet 네트워크 흐름 설명을 반환합니다.</summary>
         public string FlowDescription => flowDescription;
+
+        /// <summary>Match Room 임시 GUI 표시 여부를 반환합니다.</summary>
         public bool ShowMatchRoomGui => showMatchRoomGui;
+
+        /// <summary>오프라인 부트스트랩 씬 경로를 반환합니다.</summary>
         public string OfflineBootstrapScene => offlineBootstrapScene;
+
+        /// <summary>매치 룸 씬 경로를 반환합니다.</summary>
         public string MatchRoomScene => matchRoomScene;
+
+        /// <summary>게임플레이 씬 경로를 반환합니다.</summary>
         public string GameplayScene => gameplayScene;
 
         private NetworkManager NetworkManagerInstance
@@ -50,6 +59,7 @@ namespace ProjectRaidAuthority.Networking
             }
         }
 
+        /// <summary>테스트나 부트스트랩 코드에서 FishNet 흐름 의존성을 주입합니다.</summary>
         public void Configure(
             NetworkManager manager,
             FishNet.Object.NetworkObject roomPrefab,
@@ -80,26 +90,53 @@ namespace ProjectRaidAuthority.Networking
 
         private void OnDisable()
         {
+            if (Application.isPlaying)
+            {
+                StopNetwork();
+            }
+
             Unsubscribe();
         }
 
+        private void OnApplicationQuit()
+        {
+            StopNetwork();
+        }
+
+        /// <summary>현재 NetworkManager의 로컬 서버와 클라이언트 연결을 정리합니다.</summary>
         public void StopNetwork()
         {
-            NetworkManager manager = NetworkManagerInstance;
+            StopNetwork(NetworkManagerInstance);
+        }
+
+        private static void ResetLocalNetworkStateForFreshStart(NetworkManager targetManager)
+        {
+            foreach (NetworkManager manager in NetworkManager.Instances)
+            {
+                StopNetwork(manager);
+            }
+
+            StopNetwork(targetManager);
+        }
+
+        private static void StopNetwork(NetworkManager manager)
+        {
             if (manager == null)
             {
                 return;
             }
 
-            if (manager.ClientManager.Started)
+            if (manager.ClientManager != null && manager.ClientManager.Started)
             {
                 manager.ClientManager.StopConnection();
             }
 
-            if (manager.IsServerStarted)
+            if (manager.ServerManager != null && manager.IsServerStarted)
             {
                 manager.ServerManager.StopConnection(true);
             }
+
+            manager.TransportManager?.Transport?.Shutdown();
         }
 
         private void Subscribe()

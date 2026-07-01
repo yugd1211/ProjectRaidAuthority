@@ -9,6 +9,7 @@ namespace ProjectRaidAuthority.Networking
 {
     public sealed partial class FishNetNetworkFlowController
     {
+        /// <summary>기존 로컬 FishNet 연결을 정리한 뒤 서버 전용 연결 시작을 요청합니다.</summary>
         public void StartServerOnly()
         {
             NetworkManager manager = NetworkManagerInstance;
@@ -18,18 +19,14 @@ namespace ProjectRaidAuthority.Networking
                 return;
             }
 
+            ResetLocalNetworkStateForFreshStart(manager);
             Subscribe();
 
-            if (manager.IsServerStarted)
-            {
-                Debug.Log("[NetworkFlow] 서버가 이미 시작되어 서버 전용 시작 요청을 건너뜁니다.");
-                return;
-            }
-
             manager.ServerManager.StartConnection();
-            Debug.Log("[NetworkFlow] 서버 전용 모드를 시작했습니다. 클라이언트는 함께 시작하지 않습니다.");
+            Debug.Log("[NetworkFlow] 서버 전용 모드 시작을 요청했습니다. 클라이언트는 함께 시작하지 않습니다.");
         }
 
+        /// <summary>RoomPlayer 준비 상태 변경을 서버 흐름에 알립니다.</summary>
         public void NotifyRoomPlayerReadyChanged()
         {
             if (!AreAllRoomPlayersReady())

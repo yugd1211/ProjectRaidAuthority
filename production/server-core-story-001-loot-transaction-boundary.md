@@ -1,4 +1,4 @@
-# Server Core Story 001 — LootService 경계 분리
+# Server Core Story 001 — LootTransactionService 경계 분리
 
 ## 상태
 
@@ -7,7 +7,9 @@ Draft — FishNet authority smoke 완료 이후 첫 server-core story 후보
 
 ## 목표
 
-현재 FishNet loot smoke 동작을 유지하면서, loot 소유권 commit 규칙을 FishNet `NetworkBehaviour` 내부 구현에서 순수 application service 경계로 분리한다. 이 story는 미래 Backend/Database 이전을 준비하지만 실제 DB, Backend process, HTTP/gRPC API는 만들지 않는다.
+이 story에서 `Service`는 루팅 기능 전체 관리자가 아니라 backend/application 계층의 contract 관습을 따른 이름이다. 혼동을 줄이기 위해 넓은 `LootService` 대신 `LootTransactionService`를 사용한다.
+
+현재 FishNet loot smoke 동작을 유지하면서, loot 소유권 commit 규칙을 FishNet `NetworkBehaviour` 내부 구현에서 순수 application transaction 경계로 분리한다. 이 story는 미래 Backend/Database 이전을 준비하지만 실제 DB, Backend process, HTTP/gRPC API는 만들지 않는다.
 
 ## 근거 문서
 
@@ -23,13 +25,13 @@ Draft — FishNet authority smoke 완료 이후 첫 server-core story 후보
 
 ## 사용자 가치
 
-개발자는 FishNet Game Server 안에서 바로 검증 가능한 loot transaction을 유지하면서, 이후 Backend inventory service나 DB-backed repository로 옮길 때 `LootService` contract만 유지하고 adapter/repository를 교체할 수 있다.
+개발자는 FishNet Game Server 안에서 바로 검증 가능한 loot transaction을 유지하면서, 이후 Backend inventory service나 DB-backed repository로 옮길 때 `LootTransactionService` contract만 유지하고 adapter/repository를 교체할 수 있다.
 
 ## 범위
 
 ### 포함
 
-- 순수 C# `LootService.TryCommitLoot(LootCommand) -> LootDecision` 설계/구현.
+- 순수 C# `LootTransactionService.TryCommitLoot(LootCommand) -> LootDecision` 설계/구현.
 - in-memory `ItemInstanceRepository` 또는 동등한 repository 경계 설계/구현.
 - `GamePlayer.LootServer.cs`가 FishNet/Unity 데이터를 `LootCommand`로 변환하도록 정리.
 - `LootItem`은 `ItemInstance`의 획득 가능 상태를 표시하는 projection으로 유지.
@@ -55,7 +57,7 @@ Client input
       - scene distance 검증
       - NetworkObject/LootItem 조회
       - LootCommand 생성
-  -> LootService.TryCommitLoot(command)
+  -> LootTransactionService.TryCommitLoot(command)
       - RequestId 멱등성
       - item state 전이
       - ownership commit
@@ -81,9 +83,9 @@ Client input
 - 현재 `partial` 구조를 유지한다면, story 완료 보고에 예외 사유와 계약 소유 파일 표를 남긴다.
 - 순수 domain/service 파일에는 FishNet namespace, `NetworkObject`, `OwnerId`, `Transform`, `SyncVar`가 들어가지 않는다.
 
-### AC-03 — LootService 순수 규칙
+### AC-03 — LootTransactionService 순수 규칙
 
-- `LootService.TryCommitLoot`는 Unity/FishNet 타입 없이 테스트할 수 있다.
+- `LootTransactionService.TryCommitLoot`는 Unity/FishNet 타입 없이 테스트할 수 있다.
 - 같은 `RequestId`의 재시도는 두 번째부터 상태 변경 없이 `DuplicateIgnored` 또는 동등한 결과를 반환한다.
 - 이미 획득된 item에 대한 새 요청은 소유권을 바꾸지 않고 reject 결과를 반환한다.
 - state transition은 `WorldAvailable -> InventoryOwned` 또는 story에서 정의한 동등 전이만 허용한다.
@@ -120,7 +122,7 @@ Client input
 
 - [ ] `LootCommand`, `LootDecision` 후보 타입을 FishNet 타입 없이 정의한다.
 - [ ] `ItemInstance`/repository 후보 타입을 FishNet 타입 없이 정의한다.
-- [ ] `LootService.TryCommitLoot`가 duplicate/already-looted/not-found/invalid-state를 분기한다.
+- [ ] `LootTransactionService.TryCommitLoot`가 duplicate/already-looted/not-found/invalid-state를 분기한다.
 - [ ] `GamePlayer.LootServer.cs`가 scene/FishNet 검증 후 `LootCommand`를 생성한다.
 - [ ] `LootItem` `SyncVar` projection과 presentation 비활성화 동작을 유지한다.
 - [ ] 기존 smoke 로그 문자열 또는 동등한 검색 가능한 로그를 유지한다.
@@ -133,7 +135,7 @@ Client input
 ```md
 ## Verification Evidence
 - PASS/FAIL — Unity EditMode tests: `<Unity Test Runner 또는 명령>` → `<결과 요약>`
-- PASS/FAIL — LootService pure tests: `<테스트명>` → `Committed/Duplicate/AlreadyLooted/InvalidState 결과`
+- PASS/FAIL — LootTransactionService pure tests: `<테스트명>` → `Committed/Duplicate/AlreadyLooted/InvalidState 결과`
 - PASS/FAIL — Static server authority scan: `grep -RIn "[ServerRpc]\|[Server]\|SyncVar" Assets/00_ProjectRaidAuthority/01_Scripts/00_Network/00_FishNetNetworkFlow` → `<검토 결과>`
 - PASS/FAIL — Client truth ownership scan: `<명령 또는 리뷰 범위>` → `<클라이언트 직접 확정 없음/발견 내용>`
 - PASS/FAIL — FishNet manual smoke: `<scene/role/client count>` → `<서버 이동/LootCommitted/LootRejected 로그>`
@@ -143,7 +145,7 @@ Client input
 
 ## 완료 조건
 
-- `LootService` 경계가 FishNet adapter와 분리되어 있다.
+- `LootTransactionService` 경계가 FishNet adapter와 분리되어 있다.
 - 현재 smoke에서 검증한 loot 획득/거절/중복요청 로그가 유지된다.
 - 실제 DB/Backend를 만들지 않았다는 비범위가 지켜진다.
 - `Assets/00_ProjectRaidAuthority/Docs/00_Plan/03_TechOps/01_server_domain_data_model.md`와 traceability가 맞는다.

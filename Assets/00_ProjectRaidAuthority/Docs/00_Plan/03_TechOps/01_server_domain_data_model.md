@@ -5,6 +5,10 @@
 원천: `Assets/00_ProjectRaidAuthority/Docs/00_Plan/03_TechOps/00_authoritative_server_direction.md`, `.omx/plans/server-domain-layering-consensus-plan.md`  
 목적: 현재 FishNet Game Server에서 바로 사용할 수 있으면서, 이후 Backend server와 Database로 옮기기 쉬운 canonical 서버 도메인 모델을 먼저 고정한다.
 
+## 문서 성격
+
+이 문서는 전체 서버 데이터 모델의 최종본이 아니라 **FishNet authority smoke 이후 첫 server-core 구현을 위한 v0 canonical model 초안**이다. 현재 상세 구현 대상은 loot ownership, `ItemInstance`, `InventoryStack`, `RaidEvent`, loot transaction 경계이며, combat, enemy/AI, damage, extraction result, trait/run modifier, profile persistence, 실제 DB schema는 후속 확장 범위로 둔다.
+
 ## 1. 계층 개요
 
 ```text
@@ -13,7 +17,7 @@ Future Database layer
   - 실제 DB schema, migration, ORM은 현재 만들지 않는다.
 
 Future Backend layer
-  - Match/Profile/Inventory/RaidResult service contract
+  - Match/Profile/Inventory/RaidResult application contract
   - HTTP, gRPC, 외부 인증, 실제 백엔드 프로세스는 현재 만들지 않는다.
 
 Current FishNet Game Server layer
@@ -21,7 +25,7 @@ Current FishNet Game Server layer
   - FishNet NetworkBehaviour, ServerRpc, SyncVar, NetworkObject를 adapter/projection으로 사용한다.
 ```
 
-현재 구현 순서는 “Database를 실제로 만든다”가 아니라, **Database에 저장 가능한 의미를 먼저 문서화하고 FishNet 서버 내부의 순수 service/in-memory repository로 작게 검증한다**는 뜻이다.
+현재 구현 순서는 “Database를 실제로 만든다”가 아니라, **Database에 저장 가능한 의미를 먼저 문서화하고 FishNet 서버 내부의 순수 application contract/in-memory repository로 작게 검증한다**는 뜻이다.
 
 ## 2. 경계 원칙
 
@@ -42,7 +46,7 @@ Current FishNet Game Server layer
 | `RaidId` | 하나의 raid session 식별자 | FishNet Game Server bootstrap | Match/Raid orchestration service | 로그, 결과 commit, replay의 루트 키다. |
 | `EntityId` | 플레이어/몬스터/상호작용 오브젝트의 서버 발급 식별자 | FishNet Game Server | Raid simulation service | `NetworkObjectId`와 1:1이라고 가정하지 않는다. |
 | `ItemDefinitionId` | 포션/코인/무기 template 식별자 | 콘텐츠 데이터 | Backend content/profile service | 수량과 무관한 “종류” ID다. |
-| `ItemInstanceId` | 거래/소유권 추적이 필요한 아이템 단위 식별자 | Loot service/in-memory repository | Inventory DB / Raid item table | stack 내부 개별 단위를 모두 ID로 추적할지 여부는 아이템 정책에 따른다. |
+| `ItemInstanceId` | 거래/소유권 추적이 필요한 아이템 단위 식별자 | Loot transaction/in-memory repository | Inventory DB / Raid item table | stack 내부 개별 단위를 모두 ID로 추적할지 여부는 아이템 정책에 따른다. |
 | `InventoryStackId` | 인벤토리 슬롯/스택 식별자 | Inventory projection 또는 future service | Inventory DB | `ItemInstanceId` 배열을 가질 수도 있고, currency처럼 aggregate quantity만 가질 수도 있다. |
 | `ContainerId` | world loot, chest, player inventory, stash 같은 보관 위치 식별자 | FishNet raid runtime | Inventory/Profile DB | 컨테이너 자체가 NetworkObject일 필요는 없다. |
 | `RaidEventSeq` | raid event append 순번 | FishNet Game Server | Raid event archive | 재현/감사 로그의 정렬 키다. |
@@ -170,10 +174,10 @@ InventoryOwned -> Consumed
 
 ## 6. Application service contracts
 
-### 6.1 LootService.TryCommitLoot
+### 6.1 LootTransactionService.TryCommitLoot
 
 ```text
-LootService.TryCommitLoot(LootCommand command) -> LootDecision
+LootTransactionService.TryCommitLoot(LootCommand command) -> LootDecision
 ```
 
 `LootCommand` 후보 필드:
@@ -201,9 +205,11 @@ LootService.TryCommitLoot(LootCommand command) -> LootDecision
 | `RejectedNotFound` | 대상 item 없음 |
 | `RejectedInvalidState` | 상태 전이가 허용되지 않음 |
 
-### 6.2 Future services
+`LootTransactionService`는 루팅 입력, UI, 근처 아이템 탐색, FishNet RPC, `LootItem` presentation을 직접 담당하지 않는다. 이름의 `Service`는 backend/application 계층에서 쓰는 contract 관습을 따르되, `LootService`처럼 루팅 기능 전체로 오해되지 않도록 transaction 범위를 명시한다. 이 객체의 책임은 `RequestId` 멱등성, `ItemInstance` 상태 전이, 소유권 commit/reject, `RaidEvent` 후보 생성에 한정한다.
 
-| Service | 현재 상태 | Future owner | 비고 |
+### 6.2 Future application contracts
+
+| Contract | 현재 상태 | Future owner | 비고 |
 |---|---|---|---|
 | `InventoryService.ApplyStackChange(...)` | 비범위 | Backend inventory service | stack merge/split/consume 정책 담당 |
 | `RaidResultService.CommitExtraction(...)` | 비범위 | Backend profile/result service | 성공 추출만 stash/profile commit |
@@ -225,7 +231,7 @@ LootService.TryCommitLoot(LootCommand command) -> LootDecision
 - 지금은 실제 DB를 만들지 않는다.
 - 지금은 HTTP/gRPC Backend process를 만들지 않는다.
 - 첫 구현은 in-memory repository만 사용한다.
-- 첫 service는 `LootService.TryCommitLoot` 하나로 제한한다.
+- 첫 application contract는 `LootTransactionService.TryCommitLoot` 하나로 제한한다.
 - `Player/Raid/Entity/Inventory` 전체 구현은 후속 story로 분리한다.
 - 기존 FishNet smoke 로그인 `LootCommitted`, `LootRejected`, `Duplicate LootRequest ignored`는 유지한다.
 
@@ -236,5 +242,5 @@ LootService.TryCommitLoot(LootCommand command) -> LootDecision
 - [x] `ItemInstanceId`와 `InventoryStackId`의 차이를 명확히 적는다.
 - [x] `LootItem`과 `ItemInstance`가 항상 1:1이 아닐 수 있음을 적는다.
 - [x] `RaidEvent`가 runtime event이자 future append-only audit log 후보임을 적는다.
-- [x] 첫 story가 `LootService` 하나로 제한된다고 적는다.
+- [x] 첫 story가 `LootTransactionService` 하나로 제한된다고 적는다.
 - [x] `Adapter owns FishNet types, Domain owns pure ids/states` 규칙을 포함한다.

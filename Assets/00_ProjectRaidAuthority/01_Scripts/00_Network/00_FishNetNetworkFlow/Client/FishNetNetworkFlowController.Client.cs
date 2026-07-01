@@ -5,6 +5,7 @@ namespace ProjectRaidAuthority.Networking
 {
     public sealed partial class FishNetNetworkFlowController
     {
+        /// <summary>기존 로컬 FishNet 연결을 정리한 뒤 호스트 연결 시작을 요청합니다.</summary>
         public void StartHost()
         {
             NetworkManager manager = NetworkManagerInstance;
@@ -14,19 +15,14 @@ namespace ProjectRaidAuthority.Networking
                 return;
             }
 
+            ResetLocalNetworkStateForFreshStart(manager);
             Subscribe();
 
-            if (!manager.IsServerStarted)
-            {
-                manager.ServerManager.StartConnection();
-            }
-
-            if (!manager.ClientManager.Started)
-            {
-                manager.ClientManager.StartConnection(clientAddress);
-            }
+            manager.ServerManager.StartConnection();
+            manager.ClientManager.StartConnection(clientAddress);
         }
 
+        /// <summary>기존 로컬 FishNet 연결을 정리한 뒤 지정 주소로 클라이언트 연결 시작을 요청합니다.</summary>
         public void StartClient(string address = null)
         {
             NetworkManager manager = NetworkManagerInstance;
@@ -36,14 +32,9 @@ namespace ProjectRaidAuthority.Networking
                 return;
             }
 
+            ResetLocalNetworkStateForFreshStart(manager);
             Subscribe();
             clientAddress = string.IsNullOrWhiteSpace(address) ? clientAddress : address;
-
-            if (manager.ClientManager.Started)
-            {
-                Debug.Log("[NetworkFlow] 클라이언트가 이미 시작되어 접속 요청을 건너뜁니다.");
-                return;
-            }
 
             manager.ClientManager.StartConnection(clientAddress);
         }

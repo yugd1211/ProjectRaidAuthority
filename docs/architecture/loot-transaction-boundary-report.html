@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LootTransactionService 서버 도메인 경계 구현 보고서</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #1c2430;
+      --muted: #657186;
+      --line: #d9e0ec;
+      --accent: #3366cc;
+      --good: #087f5b;
+      --warn: #ad5f00;
+      --code: #172033;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.65;
+    }
+    main { max-width: 1160px; margin: 0 auto; padding: 40px 24px 72px; }
+    header, section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 28px;
+      margin-bottom: 22px;
+      box-shadow: 0 8px 28px rgba(23, 32, 51, 0.06);
+    }
+    h1, h2, h3 { line-height: 1.25; margin: 0 0 14px; }
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.35rem; border-left: 5px solid var(--accent); padding-left: 12px; }
+    h3 { font-size: 1.08rem; margin-top: 20px; }
+    p { margin: 8px 0 12px; }
+    code, pre { font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace; }
+    code { background: #edf2ff; color: var(--code); padding: 0.15rem 0.35rem; border-radius: 6px; }
+    pre {
+      overflow: auto;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      color: var(--code);
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--line); padding: 10px 12px; vertical-align: top; }
+    th { background: #eef3ff; text-align: left; }
+    ul { margin-top: 8px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .pill { border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; background: #f8fafc; color: var(--muted); font-size: 0.92rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    .card { border: 1px solid var(--line); border-radius: 14px; padding: 16px; background: #fbfdff; }
+    .good { color: var(--good); font-weight: 700; }
+    .warn { color: var(--warn); font-weight: 700; }
+    .small { color: var(--muted); font-size: 0.94rem; }
+    .mermaid { text-align: center; background: #fff; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>LootTransactionService 서버 도메인 경계 구현 보고서</h1>
+    <p>
+      이 문서는 FishNet Game Server 안에서 먼저 동작하는 루팅 스모크 구현을
+      <strong>DB/Backend로 옮기기 쉬운 순수 도메인 transaction 경계</strong>와
+      <strong>FishNet 어댑터 경계</strong>로 나눈 결과를 사람이 빠르게 이해할 수 있게 정리한 보고서다.
+    </p>
+    <div class="meta">
+      <span class="pill">작성일: 2026-05-27</span>
+      <span class="pill">범위: Loot transaction boundary</span>
+      <span class="pill">커밋: 하지 않음</span>
+      <span class="pill">검증: .omx evaluator 대상</span>
+    </div>
+  </header>
+
+  <section>
+    <h2>1. 핵심 변경 요약</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>순수 도메인 경계 추가</h3>
+        <p><code>LootTransactionService</code>가 requestId 멱등성, 아이템 상태 전이, 소유권 확정을 담당한다.</p>
+      </div>
+      <div class="card">
+        <h3>임시 저장소 추가</h3>
+        <p><code>InMemoryItemInstanceRepository</code>는 현재 FishNet 서버 안에서만 쓰는 v0 저장소이며, 나중에 DB repository로 교체하기 쉽게 분리했다.</p>
+      </div>
+      <div class="card">
+        <h3>FishNet 어댑터 얇게 정리</h3>
+        <p><code>GamePlayer.LootServer</code>는 Scene 탐색, 거리 검증, NetworkObject projection 갱신만 담당하고 판정은 도메인에 위임한다.</p>
+      </div>
+      <div class="card">
+        <h3>회귀 테스트 추가</h3>
+        <p><code>LootTransactionServiceTests</code>로 성공, 중복 요청, 이미 획득된 아이템, 미발견, 거리 실패, invalid request를 고정했다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. 수정/추가 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>역할</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>.../30_Loot/Domain/ItemInstanceRecord.cs</code></td>
+          <td>FishNet 타입 없이 itemId/state/ownerId를 담는 최소 ItemInstance record</td>
+          <td>DB row 또는 backend DTO로 확장 가능한 형태</td>
+        </tr>
+        <tr>
+          <td><code>.../30_Loot/Domain/InMemoryItemInstanceRepository.cs</code></td>
+          <td>현재 서버 프로세스 안에서 item instance 상태를 보관하는 임시 repository</td>
+          <td>나중에 DB-backed repository로 교체할 seam</td>
+        </tr>
+        <tr>
+          <td><code>.../30_Loot/Domain/LootCommand.cs</code></td>
+          <td>FishNet adapter가 도메인에 넘기는 명령 값</td>
+          <td>request, ownerId, scene presence, 거리 검증 결과만 포함</td>
+        </tr>
+        <tr>
+          <td><code>.../30_Loot/Domain/LootDecisionKind.cs</code></td>
+          <td>commit/reject/duplicate 판정 종류</td>
+          <td>로그와 테스트에서 같은 enum을 사용</td>
+        </tr>
+        <tr>
+          <td><code>.../30_Loot/Domain/LootDecision.cs</code></td>
+          <td>transaction 판정 결과 값</td>
+          <td>FishNet adapter가 projection 갱신과 로그에 사용</td>
+        </tr>
+        <tr>
+          <td><code>.../30_Loot/Domain/LootTransactionService.cs</code></td>
+          <td>루팅 transaction의 순수 서버 도메인 service</td>
+          <td>UnityEngine/FishNet 참조 없음</td>
+        </tr>
+        <tr>
+          <td><code>.../30_Loot/Server/GamePlayer.LootServer.cs</code></td>
+          <td>FishNet ServerRpc adapter</td>
+          <td>Scene item 탐색, 거리 검증, <code>LootItem.ServerMarkLooted</code> 호출 담당</td>
+        </tr>
+        <tr>
+          <td><code>.../04_Tests/00_EditMode/Editor/LootTransactionServiceTests.cs</code></td>
+          <td>도메인 transaction 회귀 테스트</td>
+          <td>Unity/FishNet 없이 판정 규칙을 검증</td>
+        </tr>
+        <tr>
+          <td><code>Assets/.../Docs/00_Plan/03_TechOps/01_server_domain_data_model.md</code></td>
+          <td>v0 canonical model 초안 문서</td>
+          <td><code>LootTransactionService</code> 네이밍과 역할 반영</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>3. 클래스 다이어그램</h2>
+    <p class="small">Mermaid가 차단된 환경에서는 아래 코드 블록 자체가 설계 원문이다.</p>
+    <pre class="mermaid">classDiagram
+    class GamePlayer_LootServer {
+      +ServerRequestLoot(requestIdValue, itemIdValue)
+      -ApplyLootDecision(decision, item)
+      -TryFindLootItem(itemId, out item)
+      -IsLootItemInRange(item)
+      -RejectLootRequest(decision)
+    }
+
+    class LootItem {
+      +ItemId
+      +State
+      +LootOwnerId
+      +ServerMarkLooted(ownerId)
+    }
+
+    class LootTransactionService {
+      -InMemoryItemInstanceRepository repository
+      -HashSet~LootRequestId~ handledRequestIds
+      +TrackItem(record)
+      +TryCommitLoot(command) LootDecision
+    }
+
+    class InMemoryItemInstanceRepository {
+      -Dictionary~LootItemIdentity, ItemInstanceRecord~ records
+      +Upsert(record)
+      +TryGet(itemId, out record) bool
+    }
+
+    class LootCommand {
+      +LootRequest Request
+      +int OwnerId
+      +bool IsItemPresent
+      +bool IsDistanceValid
+    }
+
+    class LootDecision {
+      +LootDecisionKind Kind
+      +LootRequestId RequestId
+      +LootItemIdentity ItemId
+      +bool Succeeded
+      +bool IsDuplicate
+      +int OwnerId
+      +LootItemState State
+      +string Reason
+    }
+
+    class ItemInstanceRecord {
+      +LootItemIdentity ItemId
+      +LootItemState State
+      +int OwnerId
+      +MarkLooted(ownerId) ItemInstanceRecord
+    }
+
+    class LootRequest {
+      +LootRequestId RequestId
+      +LootItemIdentity ItemId
+      +bool IsValid
+    }
+
+    GamePlayer_LootServer --> LootItem : Scene projection 조회/갱신
+    GamePlayer_LootServer --> LootTransactionService : command 전달/decision 수신
+    LootTransactionService --> InMemoryItemInstanceRepository : 상태 조회/저장
+    LootTransactionService --> LootCommand : 입력
+    LootTransactionService --> LootDecision : 출력
+    InMemoryItemInstanceRepository --> ItemInstanceRecord : 보관
+    LootCommand --> LootRequest : 요청 값
+    LootDecision --> LootDecisionKind : 판정 종류</pre>
+  </section>
+
+  <section>
+    <h2>4. 요청 처리 관계도</h2>
+    <pre class="mermaid">flowchart LR
+    Client[클라이언트 입력/표시] -->|ServerRpc requestId,itemId| Adapter[GamePlayer.LootServer\nFishNet adapter]
+    Adapter -->|Scene에서 LootItem 찾기| Projection[LootItem\nNetworkObject projection]
+    Adapter -->|거리 검증 결과 + ownerId + request| Command[LootCommand]
+    Command --> Domain[LootTransactionService\n순수 transaction 경계]
+    Domain --> Repo[InMemoryItemInstanceRepository\nv0 임시 저장소]
+    Repo --> Domain
+    Domain -->|LootDecision| Adapter
+    Adapter -->|Committed이면 ServerMarkLooted| Projection
+    Adapter -->|로그/결과| Log[FishNet Authority Smoke log]
+
+    subgraph Later[향후 마이그레이션 방향]
+      DbRepo[DB-backed ItemInstanceRepository]
+      Backend[Backend Server API]
+    end
+    Repo -.교체 seam.-> DbRepo
+    Domain -.같은 transaction 규칙 사용.-> Backend</pre>
+  </section>
+
+  <section>
+    <h2>5. 객체별 간단 설명</h2>
+    <table>
+      <thead><tr><th>객체</th><th>현재 책임</th><th>아닌 것</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>GamePlayer.LootServer</code></td>
+          <td>FishNet ServerRpc 진입점, Unity Scene 탐색, 거리 검증, NetworkObject 상태 반영</td>
+          <td>아이템 소유권 규칙의 최종 판정자 아님</td>
+        </tr>
+        <tr>
+          <td><code>LootItem</code></td>
+          <td>월드에 보이는 전리품 projection. <code>ObserversRpc</code>로 클라이언트 표시를 갱신</td>
+          <td>DB entity 또는 전체 아이템 모델 아님</td>
+        </tr>
+        <tr>
+          <td><code>LootTransactionService</code></td>
+          <td>requestId 멱등성, item state 확인, owner commit/reject 판정</td>
+          <td>FishNet, Unity Transform, UI, 입력 처리 담당 아님</td>
+        </tr>
+        <tr>
+          <td><code>InMemoryItemInstanceRepository</code></td>
+          <td>스모크 단계에서 transaction 상태를 메모리에 보관</td>
+          <td>영구 저장소 아님. 서버 재시작 후 유지 보장 없음</td>
+        </tr>
+        <tr>
+          <td><code>ItemInstanceRecord</code></td>
+          <td>도메인 transaction이 보는 최소 아이템 인스턴스 상태</td>
+          <td>장비 옵션, 수량 stack, durability 등 전체 인벤토리 모델 아님</td>
+        </tr>
+        <tr>
+          <td><code>LootCommand</code></td>
+          <td>어댑터가 검증한 요청 입력 묶음</td>
+          <td>클라이언트 신뢰 데이터 아님. 서버에서 만든 command</td>
+        </tr>
+        <tr>
+          <td><code>LootDecision</code></td>
+          <td>transaction 결과를 FishNet adapter에 돌려주는 값</td>
+          <td>직접 네트워크 전송 DTO로 고정된 계약은 아님</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>6. 현재 범위와 남은 결정</h2>
+    <ul>
+      <li><span class="good">완료:</span> 루팅 단일 아이템 획득의 서버 권한 commit/reject/duplicate 판정 경계를 만들었다.</li>
+      <li><span class="good">완료:</span> FishNet ServerRpc 쪽은 도메인 판정 결과만 받아 월드 projection을 갱신하도록 정리했다.</li>
+      <li><span class="warn">아직 아님:</span> 실제 DB, backend server, stackable inventory, 거래/드랍/분할 stack 로직은 구현 범위에 포함하지 않았다.</li>
+      <li><span class="warn">아직 아님:</span> <code>ItemInstanceRecord</code>는 v0 최소 모델이다. 포션 16개 stack처럼 수량/slot/instance 정책은 다음 인벤토리 도메인 설계에서 확장해야 한다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>7. 검증 기준</h2>
+    <ul>
+      <li>순수 도메인 파일이 <code>UnityEngine</code>, <code>FishNet</code>을 참조하지 않는다.</li>
+      <li><code>GamePlayer.LootServer</code>가 <code>LootTransactionService</code>, <code>LootCommand</code>, <code>LootDecision</code>를 통해 도메인 경계를 사용한다.</li>
+      <li>standalone C# harness가 성공/중복/이미 획득/미발견/scene projection 누락/거리 실패/invalid request를 통과한다.</li>
+      <li>이 HTML 문서가 클래스 다이어그램, 관계도, 객체 설명을 포함한다.</li>
+    </ul>
+  </section>
+</main>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
+</body>
+</html>
